@@ -1,0 +1,6 @@
+{
+  "name": "@red-cup-engineering/ethereum-node-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ethereum execution-node arena; each contained service forms one independently operated node actor."
+}

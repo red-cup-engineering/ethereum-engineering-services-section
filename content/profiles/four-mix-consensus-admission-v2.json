@@ -1,0 +1,43 @@
+{
+  "id": "org.emsenn.four.lax-mix-consensus-admission.v2",
+  "kind": "evm-conformance-profile",
+  "purpose": "Separate seam validity from chain admission by requiring consensus exactly where FOUR par and tensor diverge.",
+  "chargeEncoding": {
+    "fields": ["positiveEvidence", "negativeEvidence"],
+    "neither": { "positiveEvidence": false, "negativeEvidence": false },
+    "true": { "positiveEvidence": true, "negativeEvidence": false },
+    "false": { "positiveEvidence": false, "negativeEvidence": true },
+    "both": { "positiveEvidence": true, "negativeEvidence": true },
+    "ordinalCarrier": false
+  },
+  "leanEvidence": {
+    "package": "obsmetrologia",
+    "source": "Obsmetrologia/Calculus/Logic/LinearLogicMix.lean",
+    "sourceDigest": "sha256:a08414c9cf20cc8114f814d2eff218f223037a5b38fac9dc9b7ad12383cdfa28",
+    "declarations": ["Obsmetrologia.chargeMix", "Obsmetrologia.chargeMix_strict", "Obsmetrologia.chargePar_eq_chargeFuse_iff"],
+    "axiomAudit": "all three declarations report no axioms through Lean LSP"
+  },
+  "admission": {
+    "coordinationPremium": "true iff chargePar(left,right) differs from chargeFuse(left,right)",
+    "consensusRequired": "equals coordinationPremium",
+    "zeroPremiumLocus": "left is both, or right is both, or left equals right and is not neither",
+    "nonzeroSupport": "an uncommitted neither side except against both, or direct true/false conflict"
+  },
+  "conformance": {
+    "carrier": "src/FourMixConsensusProfile.sol",
+    "test": "test/FourMixConsensusProfile.t.sol",
+    "denominator": "all declared requiredteen ordered pairs of explicit evidence-bit records",
+    "strictVector": "true tensor false = false; true par false = true"
+  },
+  "status": {
+    "mathematics": "axiom-free local Lean theorem verified",
+    "chainNecessity": "constitutional protocol policy, not entailed by the Lean theorem",
+    "production": "stateless conformance projection"
+  },
+  "nonclaims": [
+    "the coordination boolean is a monetary price or erasure magnitude",
+    "a valid commuting square automatically requires consensus",
+    "consensus-visible calldata is residue-only",
+    "contact tightness or circuit-holonomy completeness is proved"
+  ]
+}

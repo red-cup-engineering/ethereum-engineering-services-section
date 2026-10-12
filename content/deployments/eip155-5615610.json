@@ -1,0 +1,64 @@
+{
+  "type": "UnionEvmStandardsDeployment",
+  "chainId": "eip155:5615610",
+  "status": "integration",
+  "deployments": [
+    {
+      "standard": "org.ethereum.erc-4337.entry-point.v0.8",
+      "contract": "node_modules/@account-abstraction/contracts/core/EntryPoint.sol:EntryPoint",
+      "deployer": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+      "address": "0x4337084d9e255ff0702461cf8895ce9e3b5ff108",
+      "transactionHash": "0x69c9ce5be1d201bde085fa319c1fffeb5ec8ac3651e19d58a77aa5557a0497f1"
+    },
+    {
+      "standard": "org.emsenn.evm.sovereign-enterprise-account.v3",
+      "contract": "src/EnterpriseAccount.sol:EnterpriseAccountFactory",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x0444AC0809578CD8721D0b651BDd28BeDc90628D",
+      "transactionHash": "0x973a8e3222391cb9339f9234c014cb461df8b4ba154118c5cb5596cb3497cc2c"
+    },
+    {
+      "standard": "org.emsenn.evm.enterprise-provisioning-paymaster.v1",
+      "contract": "src/EnterpriseProvisioningPaymaster.sol:EnterpriseProvisioningPaymaster",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x014dca661614b2e97f4304b528007812d07b951d",
+      "transactionHash": "0x844935e04a7f7e6c9afc1cf8176b4d5d70a365d8f41c4eb5029aad629fc75c7f",
+      "sponsorAccount": "eip155:5615610:0xf4001cdb1fe0d1634229fc79f20ac0433a0a7781",
+      "provisioningLaw": "ni:///sha-256;g6ZIF0SvA48n76vursFN7yYXrDzmiheXXOu08sanzM4",
+      "depositTransactionHash": "0x68df501a72bbbd68ee28bd2a072765c84a02033481ab46f9aa25631b80f74cb9",
+      "stakeTransactionHash": "0xa8baefe6bda8f3c942919b4ba744db787f0746f67a60dcfce036f8cfac15a874",
+      "stakeUnstakeDelaySec": 86400
+    },
+    {
+      "standard": "org.emsenn.chu.four.strict-square.v1",
+      "contract": "src/CommittedChuSquareVerifier.sol:CommittedChuSquareVerifier",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x4A45d0Ce965df9855329220c961A61838FdB2742",
+      "transactionHash": "0x8c3e202a5fc449d7bd2608b64e30bfa3b3e290160ad24ce734c02ad00e992944"
+    },
+    {
+      "standard": "org.emsenn.four.lax-mix-consensus-admission.v2",
+      "contract": "src/FourMixConsensusProfile.sol:FourMixConsensusProfile",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x304d8b653e54117D039Ea1F7005E4a9955d47c77",
+      "transactionHash": "0x480cc14b81a837d6da6af093bae89ff22663b22409622b1fa2b39912ca696928"
+    },
+    {
+      "standard": "org.emsenn.evm.typed-commitment-projection.v1",
+      "contract": "src/TypedCommitmentProjection.sol:TypedCommitmentProjection",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x5D052120644683b8781a27D7C269C2cE171C1cE4",
+      "transactionHash": "0xb8ba2807a17f6409fdfcb7fcf5c09de5d3e9f1ed86a5cccb973473dccdf975f3"
+    },
+    {
+      "standard": "org.ethereum.erc-5219.onchain-data-resource.v1",
+      "contract": "services/smart-contract-services-section/services/onchain-data-resource-service/src/OnchainDataResource.sol:OnchainDataResource",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x35D53D38B7603B73D76F4c1Dc1e95ECCd8631e58",
+      "transactionHash": "0x52d5b234e725a6eef58e59ace8980f2ccbc46686c90eb29832ab925f6412fb84",
+      "blockNumber": 11,
+      "writePrice": "1000000000",
+      "feeRecipient": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B"
+    }
+  ]
+}

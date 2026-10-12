@@ -1,0 +1,7 @@
+# Official Optimism create-l2-rollup images, resolved 2026-07-24.
+# A tag is retained for human audit; the digest is the executable identity.
+OP_RETH_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.0@sha256:4bc077fc2068b537ec0bffb86fca027b30cac9a0b02dbfdece2363f1c1bbc861
+OP_NODE_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.3@sha256:2254e2a715cff6a937dbbfe1b44b8dc23c464f8b0cac60e4013b30a202fcb72e
+OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.16.11@sha256:af95492b091d0d7759074d8866a0c0daa5227cfdcc1520efc5e3d3ec9934af48
+OP_PROPOSER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.3@sha256:31b21fae8941245b5f47c42c0e6aff19fb4ccee4a42dbb72b4cf02f245d87836
+OP_CHALLENGER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.3@sha256:292f48678497df3b455c5786714608f659abf8dd9dc95a394313ca1b8ab0abd8

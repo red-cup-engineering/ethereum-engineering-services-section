@@ -1,0 +1,14 @@
+{
+  "id": "eas-token-claim-attestation-service",
+  "type": "ServiceContractAdvertisement",
+  "provider": "urn:ame:ethereum-services-section",
+  "protocol": "Ethereum Attestation Service",
+  "upstream": "@ethereum-attestation-service/eas-contracts IEAS and ISchemaRegistry",
+  "schema": "bytes32 tokenCommitment,bytes32 claimCommitment,bytes32 lotCommitment,bytes32 witnessProductionCommitment,bytes32 relationCommitment,uint8 articulation",
+  "relations": ["work-demand", "service-capability", "derivation", "provider-result", "customer-assay"],
+  "chainRule": "Each later claim uses EAS refUID to reference the attestation it answers; multiple prerequisites are committed in relationCommitment or a later array-bearing schema.",
+  "authorityRule": "An EAS attestation proves which account made which structured claim. It does not prove truth, successful execution, customer acceptance, title, fungibility, or price.",
+  "accountRule": "The sovereign EnterpriseAccount executes IEAS.attest, so EAS records the enterprise account as attester; its controller key is custody authority and never substitutes as the protocol-level claimant.",
+  "storageRule": "Only fixed-size commitments and EAS lifecycle fields are onchain. Full token/claim lots, context, derivations, and evidence remain in their owning settlements.",
+  "paymentRule": "The adapter fixes resolver value to zero and performs no token transfer, custody, x402 settlement, or monetary claim."
+}

@@ -1,0 +1,11 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file
+      - services/account-abstraction-services-section/services/enterprise-account-provisioning-service/ops/cloud-run/Dockerfile
+      - --tag
+      - ${_IMAGE}
+      - .
+images:
+  - ${_IMAGE}

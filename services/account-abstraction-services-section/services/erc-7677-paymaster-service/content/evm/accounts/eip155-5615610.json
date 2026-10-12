@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "erc-7677-paymaster-services-section",
+    "urn": "urn:ame:erc-7677-paymaster-services-section",
+    "enterpriseId": "0x762350330a7f3df8475134930dbdec2a970b7400868dfe88864deaff41e7a224"
+  },
+  "chain": {
+    "chainId": 5615610,
+    "caip2": "eip155:5615610"
+  },
+  "account": {
+    "address": "0xf4001cdb1fe0d1634229fc79f20ac0433a0a7781",
+    "caip10": "eip155:5615610:0xf4001cdb1fe0d1634229fc79f20ac0433a0a7781"
+  },
+  "factory": {
+    "address": "0x0444AC0809578CD8721D0b651BDd28BeDc90628D",
+    "userSalt": "0x6665044bd2f4fb4209dc15c5640a2141e3780f55e54b38732f77541589bbedbe"
+  },
+  "policy": {
+    "signer": "0x7f3bca4cc6024c69d809ebb8fc58af3d4b62d9c9",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0x30f1ec92490e8e3d6fe4ddbb4e7b4b5f0fcc9ade7e06abc2667436dec05f7f28",
+    "block": 4714
+  }
+}

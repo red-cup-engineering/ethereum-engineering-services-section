@@ -1,0 +1,9 @@
+{
+  "type": "EvmActivityPulseContract",
+  "id": "urn:ame:ethereum-services-section:contract:bare-cedar-fog-colony-evm-activity-pulse-v1",
+  "provider": "urn:ame:ethereum-services-section:evm-activity-pulse-provider",
+  "customer": "urn:ame:bare-cedar-fog-colony:colony-report-team",
+  "scope": "Read provider-owned development-chain and deployment receipts and issue exact interval flows plus separately observed stocks.",
+  "effects": ["read-provider-owned-records", "return-colony-activity-pulse"],
+  "forbids": ["wallet census crawl", "customer write", "external chain access", "spend"]
+}

@@ -1,0 +1,61 @@
+{
+  "type": "UnionEvmStandardsDeployment",
+  "chainId": "eip155:31337",
+  "deployments": [
+    {
+      "standard": "org.ethereum.erc-4337.entry-point.v0.8",
+      "contract": "node_modules/@account-abstraction/contracts/core/EntryPoint.sol:EntryPoint",
+      "deployer": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+      "address": "0x4337084d9e255ff0702461cf8895ce9e3b5ff108",
+      "transactionHash": null
+    },
+    {
+      "standard": "org.emsenn.evm.sovereign-enterprise-account.v3",
+      "contract": "src/EnterpriseAccount.sol:EnterpriseAccountFactory",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "transactionHash": "0x62bf4334ac7252d7b80c6aa3e10eb2ff92e2e5f5dd7024b4066ad7b748b44208"
+    },
+    {
+      "standard": "org.emsenn.chu.four.strict-square.v1",
+      "contract": "src/CommittedChuSquareVerifier.sol:CommittedChuSquareVerifier",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "transactionHash": "0xe535ff1fde799ccd1ee17f95c5427cb583c597e1a9787a8e270853b086b9d800"
+    },
+    {
+      "standard": "org.emsenn.four.lax-mix-consensus-admission.v2",
+      "contract": "src/FourMixConsensusProfile.sol:FourMixConsensusProfile",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "transactionHash": "0xc4a06dc450f36ab35f4d9387461d6bead4f5f5c84e9bbfa6424396811b420207"
+    },
+    {
+      "standard": "org.emsenn.evm.typed-commitment-projection.v1",
+      "contract": "src/TypedCommitmentProjection.sol:TypedCommitmentProjection",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "transactionHash": "0x1ab0d80bcafff363cbd53e32049f9fd12d20e7b611e61f0e5bfc1c11b7cfa0e2"
+    },
+    {
+      "standard": "org.emsenn.evm.enterprise-provisioning-paymaster.v1",
+      "contract": "src/EnterpriseProvisioningPaymaster.sol:EnterpriseProvisioningPaymaster",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "transactionHash": "0xb2f520f44a04b1daf7e11be7e9eea10609a8c293327689d6ca1359a1cb323393",
+      "sponsorAccount": "eip155:31337:0x1148e4eb10a03568c823addb5c506a566e9f8907",
+      "provisioningLaw": "ni:///sha-256;bB0y7mPbGhxqFcCF_QvrMPy2bg3gxazxqEZvMlzRd6E",
+      "depositTransactionHash": "0xba7736de255cd4181d31ec3a4b8618f27a88bde64b449b93c73ad7f8a777719e",
+      "stakeTransactionHash": "0xd49e1c14592fc8ff464047740bb215d7c3baafc9a0f1ce44630aab3f1b4e84b8",
+      "supersedes": {
+        "address": "0x8bA83450090a4F22649C5d01806d1C2679b1Ba98",
+        "transactionHash": "0x2418ef1f3872ce1b1b2a0d90404c4c40414739b4f725b1f88941b070320a958e",
+        "provisioningLaw": "ni:///sha-256;VfYuVmRlWSM-oE3bumzeWreuDFzZG6lyXSlxZF-5xA0",
+        "reason": "The provisioning law moved from the parent Ethereum board to its sovereign provisioning-service die."
+      }
+    }
+  ],
+  "profile": "org.emsenn.evm.standards-deployment.v3",
+  "purpose": "provider-owned receipt for the deployed standard contracts on the declared chain",
+  "accountRegistry": false
+}

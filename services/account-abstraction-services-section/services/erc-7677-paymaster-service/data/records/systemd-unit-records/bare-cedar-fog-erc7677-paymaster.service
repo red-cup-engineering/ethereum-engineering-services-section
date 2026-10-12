@@ -1,0 +1,20 @@
+[Unit]
+Description=Bare Cedar Fog ERC-7677 enterprise provisioning paymaster provider
+After=bare-cedar-fog-anvil.service
+Requires=bare-cedar-fog-anvil.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/blockchain-services-section/services/ethereum-services-section/services/account-abstraction-services-section/services/erc-7677-paymaster-service
+Environment=HOST=127.0.0.1
+Environment=PORT=7677
+Environment=EVM_RPC_URL=http://127.0.0.1:8545
+Environment=SPONSOR_PASSWORD_FILE=/home/emsenn/.local/share/emsenn/settlement-credentials/8592743c36355c358269984ad4c6b22ffedc55fba35fc3a4294b228eac307f3e/eip155-31337.password
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node bin/server.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

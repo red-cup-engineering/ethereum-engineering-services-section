@@ -1,0 +1,34 @@
+{
+  "profile": "org.emsenn.evm.standards-deployment.v2",
+  "type": "UnionEvmStandardsDeployment",
+  "chainId": "eip155:5615611",
+  "genesisSha256": "f5f5a0e5dd9f9a0f7d52dd0efb3c1241d0f11966c8eae9a6cc05c0aaa941a10c",
+  "rpc": "http://10.128.0.2:8563",
+  "deployments": [
+    {
+      "standard": "org.ethereum.erc-4337.entry-point.v0.8",
+      "role": "account-abstraction-entry-point",
+      "address": "0x4337084d9e255ff0702461cf8895ce9e3b5ff108",
+      "transactionHash": "0x5ddc5f7b8c759f6862a153f21be2e7e3db65c6a6fa2362eb14da135f31623b2b",
+      "blockNumber": 68
+    },
+    {
+      "standard": "org.emsenn.evm.sovereign-enterprise-account.v3",
+      "role": "sovereign-settlement-account-factory",
+      "address": "0x402616b746c56deb665bd163f32ec4b8e7dc0916",
+      "transactionHash": "0xcb2e5a196e38171ed517de5761b1085c94236d8af593d2121675d2aab4579799",
+      "blockNumber": 69
+    },
+    {
+      "standard": "org.emsenn.semiotic-exchange-chain.v1",
+      "role": "modeled-union-dimension-exchange",
+      "address": "0xc4234dc42c9d93bc7d61b0354aba2729ae52e322",
+      "transactionHash": "0xc9fc39f125d55ead39635cf0f4941b9b4dbebffd390e34bc4fc64f6bd0901203",
+      "blockNumber": 70
+    }
+  ],
+  "unavailable": {
+    "standard": "org.ethereum.erc-7677.paymaster",
+    "reason": "EnterpriseProvisioningPaymaster requires a pre-existing ERC-1271 sponsor EnterpriseAccount and canonical provisioning-law digest; neither was present."
+  }
+}

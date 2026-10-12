@@ -1,0 +1,6 @@
+FROM node:24-slim
+WORKDIR /app
+COPY scripts/deploy-5615611-chart-spine-hsm.mjs scripts/deploy-5615611-chart-spine-hsm.mjs
+COPY chart chart
+RUN npm init -y && npm install --omit=dev ethers@6.17.0
+CMD ["node", "scripts/deploy-5615611-chart-spine-hsm.mjs"]

@@ -1,0 +1,13 @@
+{
+  "chain": "eip155:5615611",
+  "ethereumAddress": "0xacd5243c5734f68e866047231f1017a8a9832c3e",
+  "keyVersionSuffix": "/cryptoKeys/a5615611-contract-deployer/cryptoKeyVersions/1",
+  "keyVersionEnvironment": "DEPLOYER_KMS_KEY_VERSION",
+  "custody": "Google Cloud KMS",
+  "sourceScripts": [
+    "deploy-5615611-chart-spine-hsm.mjs",
+    "deploy-5615611-x402-canary-asset-hsm.mjs",
+    "deploy-5615611-hsm-face.mjs",
+    "deploy-5615611-glass-sponge-hsm.mjs"
+  ]
+}

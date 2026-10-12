@@ -1,0 +1,35 @@
+{
+  "id": "committed-chu-square-verification-v1",
+  "kind": "bilateral-service-contract",
+  "provider": "ethereum-services-section",
+  "profile": "org.emsenn.chu.four.strict-square.v1",
+  "precondition": "Two distinct owners supply EIP-712 signatures over complementary point-forward and state-backward halves, two declared FOUR matrix roots, two matrix leaves, and their Merkle membership proofs.",
+  "move": "The provider-local EVM verifier checks signature authority, profile, replay scope, Merkle membership, and strict equality of the two FOUR evaluations.",
+  "postcondition": "A valid square closes under one seam identifier and emits a closure receipt; every invalid case returns or reverts with an exact RefusalCode.",
+  "consensusVisible": [
+    "contract bytecode and seam replay marker",
+    "square roots, half-map fields, signatures, leaves, and Merkle paths in transaction calldata",
+    "square identifier, roots, typed-data digests, profile, zero residue, and block number in the closure log"
+  ],
+  "privateByProtocol": [
+    "all matrix entries not selected as seam witnesses",
+    "books, negotiation history, and uncommitted testimony",
+    "private signing keys"
+  ],
+  "refusals": [
+    "expired half-consent",
+    "same owner on both variance halves",
+    "unknown profile or invalid FOUR charge",
+    "invalid point-side or state-side signature",
+    "invalid source or target Merkle proof",
+    "noncommuting FOUR evaluation",
+    "replayed seam identifier"
+  ],
+  "nonclaims": [
+    "matrix privacy for disclosed calldata witnesses",
+    "residue-only consensus",
+    "RMN tightness or circuit completeness",
+    "customer usefulness or acceptance",
+    "production custody, asset movement, external-chain readiness, or multichain gluing"
+  ]
+}

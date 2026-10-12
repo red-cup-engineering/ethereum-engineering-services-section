@@ -1,0 +1,44 @@
+{
+  "type": "UnionEvmStandardsDeployment",
+  "chainId": "eip155:31337",
+  "deployments": [
+    {
+      "standard": "org.ethereum.erc-4337.entry-point.v0.8",
+      "contract": "node_modules/@account-abstraction/contracts/core/EntryPoint.sol:EntryPoint",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0x38A70c040CA5F5439ad52d0e821063b0EC0B52b6",
+      "transactionHash": "0x5565a350ac1ac9d3115dd30abfe9880a23be24757757468e652d3cfb35ba329b"
+    },
+    {
+      "standard": "org.emsenn.evm.sovereign-enterprise-account.v2",
+      "contract": "src/EnterpriseAccount.sol:EnterpriseAccountFactory",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0x54B8d8E2455946f2A5B8982283f2359812e815ce",
+      "transactionHash": "0x8e9c4bc8c8e44b26ba2c0e9864cd728fff43630ae2c38f15acc097f4ccca2978"
+    },
+    {
+      "standard": "org.emsenn.chu.four.strict-square.v1",
+      "contract": "src/CommittedChuSquareVerifier.sol:CommittedChuSquareVerifier",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0xf090f16dEc8b6D24082Edd25B1C8D26f2bC86128",
+      "transactionHash": "0x5dea677e03c525b49bbdb56664d015c44ba142406e671151a4405dc553a40a7d"
+    },
+    {
+      "standard": "org.emsenn.four.lax-mix-consensus-admission.v1",
+      "contract": "src/FourMixConsensusProfile.sol:FourMixConsensusProfile",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0xd9140951d8aE6E5F625a02F5908535e16e3af964",
+      "transactionHash": "0xb86a4f871672ea84b26f4f7244c1d0cddfd6828ada515f71a2ade71295d257a1"
+    },
+    {
+      "standard": "org.emsenn.evm.holonomy-seam-ledger.v1",
+      "contract": "src/HolonomySeamLedger.sol:HolonomySeamLedger",
+      "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "address": "0x56D13Eb21a625EdA8438F55DF2C31dC3632034f5",
+      "transactionHash": "0x90b824f2fd2d7ba03abc34f087af11375ba5c1fb0d658535d6aae0931d014687"
+    }
+  ],
+  "profile": "org.emsenn.evm.standards-deployment.v2",
+  "purpose": "provider-owned receipt for the deployed standard contracts on the declared chain",
+  "accountRegistry": false
+}

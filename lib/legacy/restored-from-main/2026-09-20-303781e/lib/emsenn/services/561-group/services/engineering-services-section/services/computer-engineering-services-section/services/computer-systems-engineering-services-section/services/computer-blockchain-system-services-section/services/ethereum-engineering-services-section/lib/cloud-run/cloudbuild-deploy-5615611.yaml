@@ -1,0 +1,4 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: [build, -f, ops/cloud-run/Dockerfile.deploy-5615611, -t, '${_IMAGE}', .]
+images: ['${_IMAGE}']

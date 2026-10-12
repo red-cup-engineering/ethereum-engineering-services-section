@@ -1,0 +1,6 @@
+FROM node:24-slim
+WORKDIR /app
+COPY scripts/deploy-5615611-x402-canary-asset-hsm.mjs scripts/deploy-5615611-x402-canary-asset-hsm.mjs
+COPY asset asset
+RUN npm init -y && npm install --omit=dev ethers@6.17.0
+CMD ["node", "scripts/deploy-5615611-x402-canary-asset-hsm.mjs"]

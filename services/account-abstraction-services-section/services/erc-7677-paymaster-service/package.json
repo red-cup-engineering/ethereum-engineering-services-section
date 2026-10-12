@@ -1,0 +1,20 @@
+{
+  "name": "@red-cup-engineering/erc-7677-paymaster-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Separately hireable ERC-7677 provisioning sponsorship for ERC-4337 enterprise accounts.",
+  "dependencies": {
+    "ethers": "6.17.0",
+    "viem": "2.55.4",
+    "@red-cup-engineering/http-services-section": "workspace:*"
+  },
+  "scripts": {
+    "check": "node --check src/paymaster-service.mjs && node --check scripts/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test",
+    "serve": "node scripts/server.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

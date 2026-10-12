@@ -1,0 +1,13 @@
+FROM node:24-slim
+WORKDIR /app
+COPY scripts/deploy-5615611-glass-sponge-hsm.mjs scripts/deploy-5615611-glass-sponge-hsm.mjs
+COPY articulating/Mark.json articulating/Mark.json
+COPY articulating/Utterance.json articulating/Utterance.json
+COPY out/CrossSystemTimeWitnessRegistryV1.sol/CrossSystemTimeWitnessRegistryV1.json out/CrossSystemTimeWitnessRegistryV1.sol/CrossSystemTimeWitnessRegistryV1.json
+COPY out/ContentClaimRegistryV1.sol/ContentClaimRegistryV1.json out/ContentClaimRegistryV1.sol/ContentClaimRegistryV1.json
+COPY out/ActorOfficeBindingRegistryV1.sol/ActorOfficeBindingRegistryV1.json out/ActorOfficeBindingRegistryV1.sol/ActorOfficeBindingRegistryV1.json
+COPY out/GlassPoreRegistryV1.sol/GlassPoreRegistryV1.json out/GlassPoreRegistryV1.sol/GlassPoreRegistryV1.json
+COPY out/ConsiderationEvidenceRegistryV1.sol/ConsiderationEvidenceRegistryV1.json out/ConsiderationEvidenceRegistryV1.sol/ConsiderationEvidenceRegistryV1.json
+COPY out/OutcomeReceiptRegistryV1.sol/OutcomeReceiptRegistryV1.json out/OutcomeReceiptRegistryV1.sol/OutcomeReceiptRegistryV1.json
+RUN npm init -y && npm install --omit=dev ethers@6.17.0
+CMD ["node", "scripts/deploy-5615611-glass-sponge-hsm.mjs"]

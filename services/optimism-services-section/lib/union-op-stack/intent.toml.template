@@ -1,0 +1,43 @@
+# Rendered only into the ignored state directory by scripts/apply.sh.
+configType = "custom"
+l1ChainID = 84532
+fundDevAccounts = false
+useInterop = false
+# op-deployer v0.7.1's official generated custom intent uses embedded artifacts.
+l1ContractsLocator = "embedded"
+l2ContractsLocator = "embedded"
+
+[superchainRoles]
+SuperchainProxyAdminOwner = "${SUPERCHAIN_PROXY_ADMIN_OWNER}"
+SuperchainGuardian = "${SUPERCHAIN_GUARDIAN}"
+Challenger = "${CHALLENGER}"
+
+[[chains]]
+id = "0x000000000000000000000000000000000000000000000000000000002ff75b9f"
+baseFeeVaultRecipient = "${FEE_VAULT_RECIPIENT}"
+l1FeeVaultRecipient = "${FEE_VAULT_RECIPIENT}"
+sequencerFeeVaultRecipient = "${FEE_VAULT_RECIPIENT}"
+operatorFeeVaultRecipient = "${FEE_VAULT_RECIPIENT}"
+eip1559DenominatorCanyon = 0
+eip1559Denominator = 0
+eip1559Elasticity = 0
+gasLimit = 60000000
+operatorFeeScalar = 0
+operatorFeeConstant = 0
+minBaseFee = 0
+daFootprintGasScalar = 0
+
+[chains.roles]
+l1ProxyAdminOwner = "${L1_PROXY_ADMIN_OWNER}"
+l2ProxyAdminOwner = "${L2_PROXY_ADMIN_OWNER}"
+systemConfigOwner = "${SYSTEM_CONFIG_OWNER}"
+unsafeBlockSigner = "${UNSAFE_BLOCK_SIGNER}"
+batcher = "${BATCHER}"
+proposer = "${PROPOSER}"
+challenger = "${CHAIN_CHALLENGER}"
+
+[chains.customGasToken]
+name = "Union Gas"
+symbol = "UHG"
+initialLiquidity = "0x00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+liquidityControllerOwner = "${LIQUIDITY_CONTROLLER_OWNER}"

@@ -1,0 +1,32 @@
+{
+  "name": "@red-cup-engineering/settle-energy-exchange-service",
+  "version": "0.1.1",
+  "description": "Composes settleEnergyExchangeRecord to settle an EnergyExchangeRecord, refuses as data unless it settles in KWH, and names the exact WitnessedKilowattHour.mint call its unit licenses; lib/contracts/settle-energy-exchange.sol is the on-chain unit ledger that call mints into, never submitted by this operation itself.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/settle-energy-exchange.mjs",
+  "bin": {
+    "settle-energy-exchange": "scripts/settle-energy-exchange.mjs"
+  },
+  "files": [
+    "scripts",
+    "lib",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0",
+    "@red-cup-engineering/settle-energy-exchange-record-service": "0.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/settle-energy-exchange.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

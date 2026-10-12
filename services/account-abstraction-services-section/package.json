@@ -1,0 +1,5 @@
+{
+  "name": "@red-cup-engineering/account-abstraction-services-section",
+  "version": "0.1.0",
+  "description": "ERC-4337 account-abstraction arena; bundling, sponsorship, and technical account-provisioning actors live below this locus."
+}

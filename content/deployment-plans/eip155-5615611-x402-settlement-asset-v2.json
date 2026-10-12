@@ -1,0 +1,56 @@
+{
+  "type": "UndeployedX402ExactSettlementAssetPlan",
+  "standard": "org.emsenn.evm.x402-exact-settlement-asset.eip3009.v2",
+  "status": "candidate-undeployed",
+  "chainId": "eip155:5615611",
+  "protocol": {
+    "scheme": "exact",
+    "schemeVersion": 2,
+    "network": "eip155:5615611",
+    "authorization": "EIP-3009 TransferWithAuthorization",
+    "payerSignatureValidation": "ERC-1271 through EnterpriseAccount.isValidSignature",
+    "counterfactualSignatureValidation": "ERC-6492 only when the exact-v2 facilitator allowlists the selected EnterpriseAccountFactory"
+  },
+  "contract": {
+    "name": "X402ExactSettlementAssetV2",
+    "source": "src/X402ExactSettlementAssetV2.sol",
+    "constructor": {
+      "name": null,
+      "symbol": null,
+      "version": null,
+      "decimals": null,
+      "initialHolder": null,
+      "initialSupply": null
+    },
+    "address": null,
+    "transactionHash": null,
+    "blockNumber": null
+  },
+  "sovereignPayer": {
+    "accountProfile": "content/profiles/sovereign-enterprise-account-v3.rml",
+    "enterpriseAccount": null,
+    "entryPoint": null,
+    "enterpriseAccountFactory": null,
+    "policySigner": null,
+    "policySignerCustody": "HSM-backed signing authority; no exportable or command-line raw private key",
+    "executionBoundary": "ERC-4337 EntryPoint for account execution; ERC-1271 for x402 authorization validation"
+  },
+  "deploymentAuthority": {
+    "custody": "HSM-backed contract-deployer authority",
+    "rawPrivateKeyAccepted": false,
+    "commandLinePrivateKeyAccepted": false,
+    "deploymentExecutablePresent": false
+  },
+  "requiredPredeploymentDecisions": [
+    "governance approves asset name and symbol",
+    "governance approves EIP-712 version",
+    "governance approves decimals and fixed initial supply",
+    "a chain-5615611 EnterpriseAccount and its canonical EntryPoint binding are independently verified",
+    "the exact-v2 facilitator configuration names the identical asset name and version",
+    "HSM deployment and payer-policy signing ceremonies are separately approved"
+  ],
+  "funding": false,
+  "broadcast": false,
+  "signing": false,
+  "chainMutation": false
+}

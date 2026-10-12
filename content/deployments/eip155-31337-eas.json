@@ -1,0 +1,28 @@
+{
+  "type": "EthereumAttestationServiceDeploymentProjection",
+  "protocol": "Ethereum Attestation Service",
+  "chainId": "eip155:31337",
+  "upstream": { "package": "@ethereum-attestation-service/eas-contracts", "version": "1.9.0" },
+  "schemaRegistry": {
+    "address": "0x01e21d7b8c39dc4c764c19b308bd8b14b1ba139e",
+    "protocolVersion": "1.4.0",
+    "transactionHash": "0x28fbf6ce495496a0076f618594b0427a5ade085da0a6d9a76d01a3aad0a6b6d5",
+    "blockNumber": 256
+  },
+  "eas": {
+    "address": "0x3c1cb427d20f15563ada8c249e71db76d7183b6c",
+    "protocolVersion": "1.4.0",
+    "transactionHash": "0x0854fb7d4ae76a802a9dca9901e22105c4f51aca1496f0b08bef1f6b0fd9b0fc",
+    "blockNumber": 257
+  },
+  "tokenClaimSchema": {
+    "schema": "bytes32 tokenCommitment,bytes32 claimCommitment,bytes32 lotCommitment,bytes32 witnessProductionCommitment,bytes32 relationCommitment,uint8 articulation",
+    "uid": "0x9997e3b0997cd186ad1bc47ce8240004dc0e91511a83324b7985607d6df10c26",
+    "registerer": "eip155:31337:0xad93833b8db305b7a6538558706068e4e7f0b7d8",
+    "transactionHash": "0x916178259fc530cf6103e839b306904e27f9f6d4ec4a179c02051af53bf760b3",
+    "blockNumber": 259,
+    "resolver": "0x0000000000000000000000000000000000000000",
+    "revocable": false
+  },
+  "authority": "The EVM contracts and event log are authoritative; this file is a replay projection."
+}

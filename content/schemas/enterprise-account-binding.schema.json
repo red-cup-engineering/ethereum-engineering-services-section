@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://emsenn.net/schema/evm/enterprise-account-binding.v2.json",
+  "title": "Sovereign enterprise EVM account binding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "enterprise", "chain", "account", "factory", "policy", "deployment"],
+  "properties": {
+    "profile": {"const": "org.emsenn.evm.sovereign-enterprise-account.v3"},
+    "enterprise": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeId", "urn", "enterpriseId"],
+      "properties": {
+        "nodeId": {"type": "string", "minLength": 1},
+        "urn": {"type": "string", "pattern": "^urn:"},
+        "enterpriseId": {"type": "string", "pattern": "^0x[0-9a-fA-F]{64}$"}
+      }
+    },
+    "chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chainId", "caip2"],
+      "properties": {
+        "chainId": {"type": "integer", "minimum": 1},
+        "caip2": {"type": "string", "pattern": "^eip155:[0-9]+$"}
+      }
+    },
+    "account": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "caip10"],
+      "properties": {
+        "address": {"type": "string", "pattern": "^0x[0-9a-fA-F]{40}$"},
+        "caip10": {"type": "string", "pattern": "^eip155:[0-9]+:0x[0-9a-fA-F]{40}$"}
+      }
+    },
+    "factory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "userSalt"],
+      "properties": {
+        "address": {"type": "string", "pattern": "^0x[0-9a-fA-F]{40}$"},
+        "userSalt": {"type": "string", "pattern": "^0x[0-9a-fA-F]{64}$"}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "required": ["signer", "custody"],
+          "properties": {
+            "signer": {"type": "string", "pattern": "^0x[0-9a-fA-F]{40}$"},
+            "custody": {"const": "settlement-private"}
+          }
+        },
+        {
+          "additionalProperties": false,
+          "required": ["signer", "custody", "keyVersion"],
+          "properties": {
+            "signer": {"type": "string", "pattern": "^0x[0-9a-fA-F]{40}$"},
+            "custody": {"const": "remote-cloud-kms-hsm"},
+            "keyVersion": {"type": "string", "pattern": "^projects/[^/]+/locations/[^/]+/keyRings/[^/]+/cryptoKeys/[^/]+/cryptoKeyVersions/[^/]+$"}
+          }
+        }
+      ]
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transaction", "block"],
+      "properties": {
+        "transaction": {"type": "string", "pattern": "^0x[0-9a-fA-F]{64}$"},
+        "block": {"type": "integer", "minimum": 0}
+      }
+    },
+    "accounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority", "funding", "chain"],
+      "properties": {
+        "authority": {"type": "object", "additionalProperties": false, "required": ["enterpriseUrn", "nodeId"], "properties": {"enterpriseUrn": {"type": "string", "pattern": "^urn:"}, "nodeId": {"type": "string", "minLength": 1}}},
+        "funding": {"type": "object", "additionalProperties": false, "required": ["source", "treasury", "custody", "keyVersion", "minimumWei", "balanceWei", "transactions"], "properties": {"source": {"const": "remote-cloud-kms-treasury"}, "treasury": {"type": "string", "pattern": "^0x[0-9a-fA-F]{40}$"}, "custody": {"const": "remote-cloud-kms-hsm"}, "keyVersion": {"type": "string", "pattern": "^projects/[^/]+/locations/[^/]+/keyRings/[^/]+/cryptoKeys/[^/]+/cryptoKeyVersions/[^/]+$"}, "minimumWei": {"type": "string", "pattern": "^[0-9]+$"}, "balanceWei": {"type": "string", "pattern": "^[0-9]+$"}, "transactions": {"type": "array", "items": {"type": "string", "pattern": "^0x[0-9a-fA-F]{64}$"}}}},
+        "chain": {"type": "object", "additionalProperties": false, "required": ["deployment", "idempotentReconciliation"], "properties": {"deployment": {"type": "object", "additionalProperties": false, "required": ["transaction", "block"], "properties": {"transaction": {"type": "string", "pattern": "^0x[0-9a-fA-F]{64}$"}, "block": {"type": "integer", "minimum": 0}}}, "idempotentReconciliation": {"type": "boolean"}}}
+      }
+    }
+  }
+}

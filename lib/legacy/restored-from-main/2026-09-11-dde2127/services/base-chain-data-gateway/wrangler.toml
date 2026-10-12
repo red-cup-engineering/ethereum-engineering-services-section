@@ -1,0 +1,22 @@
+name = "base-chain-data-gateway"
+main = "src/worker.mjs"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Every settlement-affecting value (network, payee, facilitator, prices,
+# RPC endpoint) is supplied here or by `wrangler secret put`, never
+# hardcoded in src/ -- see envConfiguration() in src/worker.mjs and the
+# "Configuration" section of README.md.
+routes = [
+  { pattern = "base-chain.561.group", custom_domain = true }
+]
+
+[vars]
+X402_NETWORK = "eip155:8453"
+BASE_RPC_URL = "https://mainnet.base.org"
+# PayAI's free, keyless x402 facilitator; live-verified 2026-08-31 for the
+# "exact" scheme on Base mainnet (network "base") via its own /supported
+# endpoint -- no CDP account or API key required.
+X402_FACILITATOR = "https://facilitator.payai.network"
+# X402_PAY_TO is a `wrangler secret put` value, not a var; the payout address
+# it carries is recorded beside this file in 402index-listing.json.

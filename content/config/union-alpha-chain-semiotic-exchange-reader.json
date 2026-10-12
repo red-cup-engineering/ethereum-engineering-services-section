@@ -1,0 +1,22 @@
+{
+  "type": "UnionSemioticExchangeHistoryReaderConfiguration",
+  "version": 1,
+  "chainId": "eip155:5615611",
+  "nodeUnit": "union-alpha-chain-5615611-node.service",
+  "chainRpc": "http://10.128.0.2:8563",
+  "membrane": {
+    "host": "10.128.0.2",
+    "port": 8562,
+    "path": "/v1/semiotic-exchange/rpc"
+  },
+  "exchange": "0xc4234dc42c9d93bc7d61b0354aba2729ae52e322",
+  "deploymentBlock": 70,
+  "eventTopics": [
+    "0xc047c3429748a223b56b02776b2c3993c72d320b8c685d712a6cad64612738e9",
+    "0x82f2bb67acbffd5675cbbf5ddf0528513b5f3fad32c2450ea140aaca775810dd",
+    "0x6467956a6570214a321c98e8430560bfc5c26ad205b9f716f73e7b871a19e217",
+    "0x0f0309f9d310294eab5c1f23f84eb646597511ddffdb15f4a36c598675b4aeed",
+    "0x3a7feaa064aeb6612f758876640d573a2d8a75dceb49942a8435289e03495880",
+    "0xc975c954b646cc7c315af0d6d8e768d84a6febf92e822d402ba9c4f3ee7246d9"
+  ]
+}

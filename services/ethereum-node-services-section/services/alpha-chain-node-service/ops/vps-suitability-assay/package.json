@@ -1,0 +1,21 @@
+{
+  "name": "@red-cup-engineering/alpha-chain-vps-suitability-assay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only, injected-facts suitability assay for a Besu QBFT alpha-chain host.",
+  "exports": {
+    ".": "./src/assay.mjs"
+  },
+  "bin": {
+    "assay-alpha-chain-vps": "./scripts/assay-vps.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/assay.mjs && node --check scripts/assay-vps.mjs && node --check test/assay.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

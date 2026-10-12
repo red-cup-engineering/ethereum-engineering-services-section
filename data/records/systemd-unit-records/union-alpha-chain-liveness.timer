@@ -1,0 +1,12 @@
+[Unit]
+Description=Repeatedly assay the live Union alpha chain boundary
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=union-alpha-chain-liveness.service
+
+[Install]
+WantedBy=timers.target

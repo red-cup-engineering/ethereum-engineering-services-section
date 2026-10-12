@@ -1,0 +1,28 @@
+{
+  "type": "UndeployedEvmDeploymentPlan",
+  "status": "candidate-undeployed",
+  "chainId": "eip155:5615611",
+  "existingSemioticExchangeV1": "0xc4234dc42c9d93bc7d61b0354aba2729ae52e322",
+  "topology": {
+    "SEA": "Semantics Energy Arena",
+    "FOAM": "Field of Articulating Models",
+    "MUD": "Modeled Union Dimension",
+    "GLASS-SPONGE": "Genet-Language Actuators Simulating Sentient Semiotic Pores Operating Nutrient-Game Exchange",
+    "SHRIMP": "SPONGE Holonomy-Repair Inference-Model Player",
+    "ECOLOGY": "Excitation of Colonies Organizing Language Ontology Game Yield",
+    "placement": "SEA has MUD and FOAM; GLASS-SPONGE lives on MUD in symbiosis with SHRIMP."
+  },
+  "contracts": [
+    {"order": 0, "contract": "Mark", "sourcePackage": "@lenticule-science/articulating", "constructor": [], "address": null, "transactionHash": null, "blockNumber": null},
+    {"order": 1, "contract": "Utterance", "sourcePackage": "@lenticule-science/articulating", "constructor": ["$Mark"], "address": null, "transactionHash": null, "blockNumber": null},
+    {"order": 2, "contract": "CrossSystemTimeWitnessRegistryV1", "source": "src/CrossSystemTimeWitnessRegistryV1.sol", "constructor": [], "address": null, "transactionHash": null, "blockNumber": null},
+    {"order": 3, "contract": "ContentClaimRegistryV1", "source": "src/ContentClaimRegistryV1.sol", "constructor": ["$Utterance", "$CrossSystemTimeWitnessRegistryV1"], "address": null, "transactionHash": null, "blockNumber": null},
+    {"order": 4, "contract": "ActorOfficeBindingRegistryV1", "source": "src/ActorOfficeBindingRegistryV1.sol", "constructor": [], "address": null, "transactionHash": null, "blockNumber": null},
+    {"order": 5, "contract": "GlassPoreRegistryV1", "source": "src/GlassPoreRegistryV1.sol", "constructor": ["$ActorOfficeBindingRegistryV1", "$CrossSystemTimeWitnessRegistryV1"], "address": null, "transactionHash": null, "blockNumber": null},
+    {"order": 6, "contract": "ConsiderationEvidenceRegistryV1", "source": "src/ConsiderationEvidenceRegistryV1.sol", "constructor": ["$SemioticExchangeV1", "$CrossSystemTimeWitnessRegistryV1"], "address": null, "transactionHash": null, "blockNumber": null},
+    {"order": 7, "contract": "OutcomeReceiptRegistryV1", "source": "src/OutcomeReceiptRegistryV1.sol", "constructor": ["$SemioticExchangeV1", "$ConsiderationEvidenceRegistryV1"], "address": null, "transactionHash": null, "blockNumber": null}
+  ],
+  "broadcast": false,
+  "signing": false,
+  "chainMutation": false
+}

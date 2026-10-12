@@ -1,0 +1,33 @@
+{
+  "name": "@red-cup-engineering/base-btc-deleverage-execution-service",
+  "version": "0.1.4",
+  "description": "Injected-boundary executor for an authorized Base BTC deleverage action card.",
+  "type": "module",
+  "exports": {
+    ".": "./src/base-btc-deleverage-execution.mjs",
+    "./stable-pool-recovery-executor-artifact": "./src/stable-pool-recovery-executor-artifact.mjs",
+    "./operator-adapter": "./src/operator-adapter.mjs"
+  },
+  "bin": {
+    "base-btc-deleverage-operator": "./scripts/base-btc-deleverage-operator.mjs"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "contracts",
+    "foundry.toml",
+    "out/StablePoolRecoveryExecutor.sol/StablePoolRecoveryExecutor.json"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@foundry-rs/anvil": "1.7.1",
+    "ethers": "6.17.0"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@foundry-rs/cast": "1.7.1",
+    "@foundry-rs/forge": "1.7.1"
+  }
+}

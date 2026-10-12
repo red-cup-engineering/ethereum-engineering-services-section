@@ -1,0 +1,24 @@
+[Unit]
+Description=Bare Cedar Fog ERC-7677 provisioning paymaster for the chain named in Environment=EXPECTED_CHAIN_ID below
+After=settlement-trace-chain-node-eip155-5615610.service
+Requires=settlement-trace-chain-node-eip155-5615610.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/blockchain-services-section/services/ethereum-services-section/services/account-abstraction-services-section/services/erc-7677-paymaster-service
+Environment=HOST=127.0.0.1
+Environment=PORT=7777
+Environment=EVM_RPC_URL=http://127.0.0.1:8561
+Environment=EXPECTED_CHAIN_ID=eip155:5615610
+Environment=ACCOUNT_BINDING=content/evm/accounts/eip155-5615610.json
+Environment=SPONSOR_KEYSTORE=data/evm/keystores/eip155-5615610.json
+Environment=SPONSOR_PASSWORD_FILE=/home/emsenn/.local/share/emsenn/settlement-credentials/8592743c36355c358269984ad4c6b22ffedc55fba35fc3a4294b228eac307f3e/eip155-5615610.password
+Environment=STANDARDS_DEPLOYMENT=../../../../content/deployments/eip155-5615610.json
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node bin/server.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

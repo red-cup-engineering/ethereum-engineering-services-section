@@ -1,0 +1,19 @@
+{
+  "name": "@red-cup-engineering/alpha-chain-node-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Forms one Besu QBFT validator or RPC node for the successor alpha chain; the predecessor chain remains historical. The live chain ID is the ALPHA_CHAIN_ID constant in src/alpha-chain.mjs.",
+  "exports": {
+    ".": "./src/alpha-chain.mjs"
+  },
+  "bin": {
+    "generate-alpha-chain-genesis": "./scripts/generate-network.mjs",
+    "run-alpha-chain-node": "./scripts/run-node.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

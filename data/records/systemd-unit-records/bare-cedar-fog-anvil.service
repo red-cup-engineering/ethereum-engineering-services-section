@@ -1,0 +1,15 @@
+[Unit]
+Description=Bare Cedar Fog local EVM settlement chain
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/blockchain-services-section/services/ethereum-services-section
+ExecStart=/home/emsenn/.config/.foundry/bin/anvil --quiet --host 127.0.0.1 --port 8545 --chain-id 31337 --hardfork cancun --state-interval 300 --state /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/blockchain-services-section/services/ethereum-services-section/data/development-chain/eip155-31337.json
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

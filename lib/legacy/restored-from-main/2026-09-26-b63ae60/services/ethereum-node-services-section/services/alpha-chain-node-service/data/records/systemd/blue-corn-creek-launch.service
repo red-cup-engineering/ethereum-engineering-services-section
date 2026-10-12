@@ -1,0 +1,10 @@
+[Unit]
+Description=Launch Blue Corn Creek, the Oracle Always Free VM for the alpha chain (retries until A1 capacity frees)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/env node /home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/ethereum-node-services-section/services/alpha-chain-node-service/scripts/launch-blue-corn-creek.mjs
+SuccessExitStatus=75
+TimeoutStartSec=600

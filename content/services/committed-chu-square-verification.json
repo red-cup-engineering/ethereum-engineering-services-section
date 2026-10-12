@@ -1,0 +1,11 @@
+{
+  "id": "committed-chu-square-verification",
+  "provider": "ethereum-services-section",
+  "contract": "content/contracts/committed-chu-square-verification.json",
+  "operations": ["assay-square", "close-square", "verify-provider-profile"],
+  "input": "Versioned Square, Witness, point-side EIP-712 signature, and state-side EIP-712 signature.",
+  "output": "Typed RefusalCode and square id, or a SquareClosed EVM receipt.",
+  "effects": ["provider-local-evm-execution", "seam-replay-marker", "closure-log"],
+  "customerEffects": [],
+  "status": "provider-local-proof-candidate-not-customer-accepted"
+}

@@ -1,0 +1,80 @@
+{
+  "chainId": "eip155:5615610",
+  "status": "integration",
+  "deployments": [
+    {
+      "standard": "org.emsenn.evm.semiotic-mark.v1",
+      "contract": "src/Mark.sol:Mark",
+      "deployer": "0xDa4D7373a42042D065b7CcAE7d7ef4C358DA58E0",
+      "address": "0x468a7d44FD08e18703b49d91740747832051D74C",
+      "transactionHash": "0xab455f1d62da5dd1016a3794f6a08afa11d012ecb590917154db5a6ec3863d61"
+    },
+    {
+      "standard": "org.emsenn.evm.semiotic-utterance.v1",
+      "contract": "src/Utterance.sol:Utterance",
+      "deployer": "0xDa4D7373a42042D065b7CcAE7d7ef4C358DA58E0",
+      "address": "0x76cBdA845C3f199632B1713c17386BAB26b4de53",
+      "transactionHash": "0x346f4b36d9c0eab2827e68857a6b161036c1ed2e3987bfa3b8122941a3c04a6f"
+    },
+    {
+      "standard": "org.emsenn.evm.semiotic-articulating.v1",
+      "contract": "src/Articulating.sol:Articulating",
+      "deployer": "0xDa4D7373a42042D065b7CcAE7d7ef4C358DA58E0",
+      "address": "0xe97ef06Aa3327e41eab1EA6d1e89d3267fE7589E",
+      "transactionHash": "0x79b35c5f910b70ad0ea3acac6f9baeef94dc0bd141413d670204a06f48157302"
+    },
+    {
+      "standard": "org.emsenn.evm.semiotic-articulation-cell.v1",
+      "contract": "src/ArticulationCell.sol:ArticulationCell",
+      "status": "obsolete-invalid-four-carrier",
+      "invalidReason": "deployed bytecode used the rejected potential=none/active=true/absurd=both/stable=false mapping",
+      "deployer": "0xDa4D7373a42042D065b7CcAE7d7ef4C358DA58E0",
+      "address": "0xFE7A54595da52c169b32CF306c0409892d978369",
+      "transactionHash": "0x5e049c9452187fc1f915fa2ab73ced81fbeb43f1c9bef5d0be9c3d70a80c836f"
+    },
+    {
+      "standard": "org.emsenn.evm.semiotic-predicating.v1",
+      "contract": "services/predicate/src/Predicating.sol:Predicating",
+      "status": "obsolete-invalid-four-carrier",
+      "invalidReason": "domain is the obsolete articulation-cell deployment",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0xd862174aE743728Bd8836767D3843f4D5668b347",
+      "transactionHash": "0x603e7e10c45031ebfd037759722d30970b0af158f714aa5e16642325765ddb08",
+      "blockNumber": 5649,
+      "domain": "0xFE7A54595da52c169b32CF306c0409892d978369"
+    },
+    {
+      "standard": "org.emsenn.evm.semiotic-evidence-contribution.v1",
+      "contract": "services/predicate/services/posit/src/EvidenceContribution.sol:EvidenceContribution",
+      "status": "obsolete-invalid-four-carrier",
+      "invalidReason": "records obsolete articulation-corner ordinals",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x5b507D613922Df98e0cb416073286F45463136c5",
+      "transactionHash": "0xe41f7b0f5a7bf1daab6b8ce1cbc90f8d31bac38eb46aed41dbd6dac23482de48",
+      "blockNumber": 5674,
+      "domain": "0xd862174aE743728Bd8836767D3843f4D5668b347"
+    },
+    {
+      "standard": "org.emsenn.evm.semiotic-valuation-accumulator.v1",
+      "contract": "services/predicate/services/posit/src/ValuationAccumulator.sol:ValuationAccumulator",
+      "status": "obsolete-invalid-four-carrier",
+      "invalidReason": "maps obsolete articulation-corner ordinals into FOUR",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0xE4c96B1CC0Bd9783b311521A224EAfbc6948C70d",
+      "transactionHash": "0xe41f7b0f5a7bf1daab6b8ce1cbc90f8d31bac38eb46aed41dbd6dac23482de48",
+      "blockNumber": 5674,
+      "domain": "0x5b507D613922Df98e0cb416073286F45463136c5"
+    },
+    {
+      "standard": "org.emsenn.evm.semiotic-positing-composition.v1",
+      "contract": "services/predicate/services/posit/src/Positing.sol:Positing",
+      "status": "obsolete-invalid-four-carrier",
+      "invalidReason": "composition depends on obsolete articulation-corner ordinals",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x83C04681Cf5CaA449025427549656a22d9E0BAE5",
+      "transactionHash": "0xe41f7b0f5a7bf1daab6b8ce1cbc90f8d31bac38eb46aed41dbd6dac23482de48",
+      "blockNumber": 5674,
+      "domain": "0xd862174aE743728Bd8836767D3843f4D5668b347"
+    }
+  ]
+}

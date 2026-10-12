@@ -1,0 +1,8 @@
+[Unit]
+Description=Repair an unresponsive Union alpha chain process
+After=union-alpha-chain-node.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl --user restart union-alpha-chain-node.service
+ExecStartPost=/usr/bin/systemctl --user restart union-semiotic-exchange-history-reader.service

@@ -1,0 +1,16 @@
+{
+  "profile": "org.emsenn.evm.standards-deployment.v2",
+  "type": "UnionEvmStandardsDeployment",
+  "chainId": "eip155:5615610",
+  "deployments": [
+    {
+      "standard": "org.emsenn.semiotic-exchange-chain.v1",
+      "role": "modeled-union-dimension-exchange",
+      "contract": "src/SemioticExchange.sol:SemioticExchange",
+      "deployer": "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+      "address": "0x98bBC65824962b61dF876A47B5779C4EcBBD4939",
+      "transactionHash": "0xedfb0d2d543ec2f7f75c4d67287c34fa3dfef8b35c81aca76eade4bf0d1fe0cb",
+      "blockNumber": 5619
+    }
+  ]
+}

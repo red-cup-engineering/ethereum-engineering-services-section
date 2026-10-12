@@ -1,0 +1,80 @@
+{
+  "kind": "jsnode.fabrication-receipt",
+  "packageName": "@red-cup-engineering/settle-energy-exchange-service",
+  "packageVersion": "0.1.0",
+  "sourceDigest": "sha256:7f1372d221a8b7db6a774af3065b962737b7fd4b11e67df6e6e7530cf462830f",
+  "specificationDigest": "sha256:3c88e595224b7059229fad6eb97f5bd9738f8653edd073c5c7a2a6f81532f59f",
+  "destination": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-solar-economic-systems-engineering-services-section/services/settle-energy-exchange-service",
+  "workOrder": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-solar-economic-systems-engineering-services-section/content/text/documents/specifications/settle-energy-exchange.md",
+  "currentLocation": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/settle-energy-exchange-service",
+  "relocatedAt": "2026-09-19",
+  "assays": [
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "staged-dependency-installation",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "syntax",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "the-rule",
+      "status": "passed",
+      "scripts": 1,
+      "lines": 101
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "tests",
+      "status": "passed",
+      "paths": [
+        "test/settle-energy-exchange-faces.test.mjs",
+        "test/settle-energy-exchange.test.mjs"
+      ]
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "pack",
+      "status": "passed",
+      "filename": "red-cup-engineering-settle-energy-exchange-service-0.1.0.tgz",
+      "digest": "sha256:5b76074d5a900091baf91760ddc2bbf9166557a16ef2d2c28929fccb9fc7c5a7"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "clean-installation",
+      "status": "passed",
+      "javascriptFiles": 1,
+      "reachableJavascriptFiles": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "import-face",
+      "status": "passed",
+      "examples": 3
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "command-face",
+      "status": "passed",
+      "examples": 3
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "help",
+      "status": "passed"
+    }
+  ],
+  "recordedAt": "2026-09-06T02:38:18.285Z"
+}

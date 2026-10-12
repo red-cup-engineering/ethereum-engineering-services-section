@@ -1,0 +1,35 @@
+{
+  "name": "@red-cup-engineering/enterprise-account-provisioning-service",
+  "version": "1.0.4",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic CREATE2 ERC-4337 enterprise-account provisioning with remote Cloud KMS custody.",
+  "bin": {
+    "provision-enterprise-account": "./scripts/provision-enterprise-account.mjs",
+    "bind-enterprise-account": "./scripts/bind-enterprise-account.mjs",
+    "solicit-service": "./src/enterprise-account-provisioning-contract.mjs",
+    "invoke-service": "./src/enterprise-account-provisioning-contract.mjs"
+  },
+  "exports": {
+    "./provision": "./src/provision-enterprise-account.mjs",
+    "./binding": "./src/account-binding.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/semantic-content-identify-service": "workspace:*",
+    "@red-cup-engineering/relation-model-notation-typing": "0.0.1",
+    "@red-cup-engineering/a2a-contracted-agent-service": "workspace:*",
+    "@red-cup-engineering/sign-ethereum-digest-with-cloud-kms-services-section": "1.0.0",
+    "@lenticule-science/witness-journal-rdf-projection-service": "workspace:*",
+    "ethers": "6.17.0",
+    "@red-cup-engineering/uri-services-section": "workspace:*",
+    "@a2a-js/sdk": "1.0.0-beta.0"
+  },
+  "scripts": {
+    "check": "node --check scripts/provision-enterprise-account.mjs && node --check scripts/bind-enterprise-account.mjs && node --check scripts/serve-a2a.mjs && node --check scripts/execute-a2a-message.mjs && node --check src/account-binding.mjs && node --check src/provision-enterprise-account.mjs && node --check src/a2a-executor.mjs && node --check src/enterprise-account-provisioning-contract.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

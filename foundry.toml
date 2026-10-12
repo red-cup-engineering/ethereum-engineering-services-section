@@ -1,0 +1,34 @@
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+cache_path = "cache"
+libs = ["node_modules"]
+remappings = [
+  "articulate/=src/",
+  "@account-abstraction/contracts/=node_modules/@account-abstraction/contracts/",
+  "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
+  "@red-cup-engineering/semiotic-exchange-chain-services-section/=node_modules/@red-cup-engineering/semiotic-exchange-chain-services-section/",
+  "@red-cup-engineering/route-directed-yield-service/=node_modules/@red-cup-engineering/route-directed-yield-service/"
+]
+solc = "0.8.28"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
+
+# Cross-chain fork harness: sources, tests and scripts live in the cross-chain section; the registry is read
+# through vm.readFile. Run from this directory:
+#   TIDEPOOL_FORK_CHAINS=base FOUNDRY_PROFILE=crosschain forge test
+[profile.crosschain]
+src = "../cross-chain-services-section/contracts"
+test = "../cross-chain-services-section/contracts/test"
+script = "../cross-chain-services-section/contracts/script"
+out = "out-crosschain"
+cache_path = "cache-crosschain"
+allow_paths = ["../cross-chain-services-section"]
+fs_permissions = [{ access = "read", path = "../cross-chain-services-section/data/records" }]

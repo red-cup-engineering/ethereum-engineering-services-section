@@ -1,0 +1,9 @@
+[Unit]
+Description=Bare Cedar Fog devchain state snapshot to off-repo pool
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/blockchain-services-section/services/ethereum-services-section
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node bin/snapshot-development-chain.mjs
+NoNewPrivileges=true
+PrivateTmp=true

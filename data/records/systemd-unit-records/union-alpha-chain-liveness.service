@@ -1,0 +1,14 @@
+[Unit]
+Description=Assay the live Union alpha chain JSON-RPC boundary
+OnFailure=union-alpha-chain-repair.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl --fail --silent --show-error --max-time 15 --header content-type:application/json --data {\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_blockNumber\",\"params\":[]} http://127.0.0.1:8561
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true

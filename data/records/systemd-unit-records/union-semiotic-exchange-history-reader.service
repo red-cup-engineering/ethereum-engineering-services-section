@@ -1,0 +1,18 @@
+[Unit]
+Description=Bounded read-only SemioticExchange history face
+After=union-alpha-chain-node.service
+Requires=union-alpha-chain-node.service
+
+[Service]
+Type=simple
+Environment=SEMIOTIC_EXCHANGE_RPC_HOST=10.128.0.2
+Environment=SEMIOTIC_EXCHANGE_RPC_PORT=8562
+ExecStart=/usr/bin/python3 %h/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/blockchain-services-section/services/ethereum-services-section/bin/serve-semiotic-exchange-rpc.py
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=default.target

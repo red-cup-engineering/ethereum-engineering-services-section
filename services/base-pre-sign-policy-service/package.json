@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/base-pre-sign-policy-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Deterministic, authority-free conformance evaluation for unsigned Base transactions against immutable anchors and declared policy.",
+  "exports": {
+    ".": "./src/policy-conformance.mjs",
+    "./policy-conformance": "./src/policy-conformance.mjs",
+    "./product-corpus": "./src/product-corpus.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/"
+  ],
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "sideEffects": false
+}

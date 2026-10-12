@@ -1,0 +1,7 @@
+FROM node:24-slim
+WORKDIR /app
+COPY scripts/deploy-5615611-hsm-face.mjs scripts/deploy-5615611-hsm-face.mjs
+COPY out/EnterpriseAccount.sol/EnterpriseAccountFactory.json out/EnterpriseAccount.sol/EnterpriseAccountFactory.json
+COPY out/SemioticExchange.sol/SemioticExchange.json out/SemioticExchange.sol/SemioticExchange.json
+RUN npm init -y && npm install --omit=dev ethers@6.17.0 @account-abstraction/contracts@0.8.0 && mkdir -p out/EntryPoint.sol && cp node_modules/@account-abstraction/contracts/artifacts/EntryPoint.json out/EntryPoint.sol/EntryPoint.json
+CMD ["node", "scripts/deploy-5615611-hsm-face.mjs"]
