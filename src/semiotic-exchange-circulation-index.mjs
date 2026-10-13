@@ -64,7 +64,18 @@ export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRC
       if (hash(observed?.hash, "checkpoint block hash") !== prior.finalized.hash) {
         const priorNumber = number(prior.finalized.number, "checkpoint finalized number");
         reorg = true; replayFrom = priorNumber > rollback ? (priorNumber - rollback > V1_BACKFILL_BLOCK ? priorNumber - rollback : V1_BACKFILL_BLOCK) : V1_BACKFILL_BLOCK;
-        for (const name of await storage.list(eventPrefix)) { const row = await storage.get(name); if (row?.blockNumber >= replayFrom.toString()) await storage.remove(name); }
+        for (const name of await storage.list(eventPrefix)) {
+          const row = await storage.get(name);
+          if (row === null) continue;
+          // Persisted block numbers are decimal strings. Lexical ordering
+          // deletes pre-reorganization rows across decimal-width boundaries
+          // (e.g. "99" >= "100") and silently loses their witnesses.
+          if (typeof row.blockNumber !== "string" ||
+              !/^(?:0|[1-9][0-9]*)$/u.test(row.blockNumber)) {
+            throw new TypeError("indexed event block number must be canonical decimal");
+          }
+          if (BigInt(row.blockNumber) >= replayFrom) await storage.remove(name);
+        }
       }
     }
     const indexed = [];
