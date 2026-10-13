@@ -61,6 +61,31 @@ test("malformed persisted block coordinates refuse reorg instead of silently los
   assert.equal((await storage.get(key)).blockNumber, "0100");
 });
 
+test("new exchange companion backfills from its own deployment block after primary checkpoint", async () => {
+  const storage = memory(), second = "0x1111111111111111111111111111111111111111";
+  const primaryEvent = event(80,h("1")), addedEvent = event(95,h("2"));
+  const readEvents = async ({exchange: contract,fromBlock,toBlock}) =>
+    (contract.toLowerCase() === second.toLowerCase() ? [addedEvent] : [primaryEvent])
+      .filter(row => row.chainPosition.blockNumber >= fromBlock && row.chainPosition.blockNumber <= toBlock);
+  const common = {
+    storage, exchange, readEvents, getBlock: async () => ({ hash: h("a") }),
+    getContractState: async () => ({ demandCount: "2" }),
+  };
+  const original = createSemioticExchangeCirculationIndex(common);
+  assert.equal((await original.reconcile({ finalized: { number: 110n, hash: h("a") } })).indexed.length,1);
+  const enlarged = createSemioticExchangeCirculationIndex({
+    ...common, companions: [{address: second,deploymentBlock:90n,version:1}],
+  });
+  const receipt = await enlarged.reconcile({ finalized: { number: 120n, hash: h("b") } });
+  assert.equal(receipt.reorg,false);
+  assert.equal(receipt.indexed.length,1);
+  const stored = await Promise.all((await storage.list("circulation/event/")).map(key=>storage.get(key)));
+  assert.deepEqual(stored.map(row=>row.blockNumber).sort(),["80","95"]);
+  assert.equal(receipt.checkpoint.contracts.length,2);
+  await assert.rejects(original.reconcile({finalized:{number:121n,hash:h("c")}}), /cannot disappear or change/u);
+  assert.equal((await storage.list("circulation/event/")).length,2);
+});
+
 test("corrupt carrier bytes refuse before storage", async () => {
   const storage = memory(), blocks = new Map([[70n, h("a")]]), corrupt = { ...event(70), carrierNi: "ni:///sha-256;wrong" };
   await assert.rejects(index(storage, [corrupt], blocks).reconcile({ finalized: { number: 70, hash: h("a") } }), /not verified/);
