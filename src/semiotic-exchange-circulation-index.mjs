@@ -58,6 +58,28 @@ export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRC
   async function reconcile({ rpcUrl, rpc, finalized } = {}) {
     const head = Object.freeze({ number: number(finalized?.number, "finalized.number"), hash: hash(finalized?.hash, "finalized.hash") });
     const prior = await storage.get(checkpointKey);
+    // A checkpoint describes which exchange contracts its cursor covered.
+    // A newly installed companion needs its own backfill from deployment,
+    // even when the primary's finalized cursor has already advanced.
+    // Retiring or renaming an indexed contract without a migration would
+    // strand its immutable historical events under the old schema.
+    const previousContracts = new Map();
+    if (prior) {
+      if (prior.chain !== chainId || !Array.isArray(prior.contracts)) {
+        throw new TypeError("exchange checkpoint chain and contract sources must be received");
+      }
+      for (const previous of prior.contracts) {
+        const address = getAddress(previous.address).toLowerCase();
+        if (previousContracts.has(address)) throw new TypeError("duplicate prior exchange contract");
+        previousContracts.set(address, previous);
+        if (!contracts.some(current =>
+            current.address.toLowerCase() === address &&
+            current.deploymentBlock === number(previous.deploymentBlock, "prior deploymentBlock") &&
+            current.version === previous.version)) {
+          throw new TypeError("previously indexed exchange contract cannot disappear or change without migration");
+        }
+      }
+    }
     let replayFrom = null, reorg = false;
     if (prior) {
       const observed = await getBlock(prior.finalized.number);
@@ -80,7 +102,10 @@ export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRC
     }
     const indexed = [];
     for (const contract of contracts) {
-      const start = replayFrom ?? (prior ? BigInt(prior.finalized.number) + 1n : contract.deploymentBlock);
+      const previouslyIndexed = previousContracts.has(contract.address.toLowerCase());
+      const start = previouslyIndexed
+        ? (replayFrom ?? number(prior.finalized.number, "prior finalized block") + 1n)
+        : contract.deploymentBlock;
       if (start > head.number) continue;
       for (const event of await readEvents({ rpcUrl, rpc, exchange: contract.address, fromBlock: start, toBlock: head.number })) {
         const eventKey = `${eventPrefix}${key(contract.address, event)}`, existing = await storage.get(eventKey);
