@@ -37,6 +37,7 @@
     "./typed-commitment": "./src/typed-commitment.mjs",
     "./publish-article50-asset": "./src/publish-article50-asset.mjs",
     "./semiotic-exchange-events": "./src/semiotic-exchange-events.mjs",
+    "./semiotic-exchange-circulation-index": "./src/semiotic-exchange-circulation-index.mjs",
     "./articulating-evm-projection": "./src/articulating-evm-projection.mjs",
     "./versioned-deployment-manifest": "./src/versioned-deployment-manifest.mjs",
     "./semiotic-exchange-raise-demand": "./src/semiotic-exchange-raise-demand.mjs",
