@@ -75,3 +75,88 @@ test("x402 facilitator signer resolves an overloaded token operation by exact ar
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+async function withSigner(overrides, run) {
+  const root = mkdtempSync(join(tmpdir(), "x402-erc4337-admission-"));
+  try {
+    const bindingPath = join(root, "binding.json");
+    writeFileSync(bindingPath, JSON.stringify({ account: { address: ACCOUNT } }));
+    return await run(createEnterpriseAccountFacilitatorSigner({
+      bindingPath, authority: AUTHORITY, rpcUrl: "http://rpc", bundlerUrl: "http://bundler",
+      semanticDigest: async () => DIGEST, publicClient: {},
+      execute: async () => ({ transactionHash: TRANSACTION }), ...overrides,
+    }));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+test("authority options cannot replace the exact semantic-gated execution", async () => {
+  let semantics, execution;
+  const authority = {
+    ...AUTHORITY, target: ACCOUNT, calldata: "0xff", value: 999n,
+    rmnSemanticDigest: TRANSACTION, rpcUrl: "http://wrong-chain", bundlerUrl: "http://wrong-bundler",
+    bindingPath: "wrong-binding", receiptWaitMs: 999_999, paymaster: { tag: "sponsor" },
+  };
+  await withSigner({
+    authority, confirmationTimeoutMs: 5_000,
+    semanticDigest: async (call) => {
+      semantics = call;
+      authority.authorizeUserOperation = () => assert.fail("mutable authority must not replace captured policy");
+      return DIGEST;
+    },
+    execute: async (call) => { execution = call; return { transactionHash: TRANSACTION }; },
+  }, async (signer) => {
+    assert.equal(await signer.sendTransaction({ to: TARGET, data: "0xABCD", value: 17n }), TRANSACTION);
+    assert.equal(execution.target, semantics.target);
+    assert.equal(execution.calldata, semantics.calldata);
+    assert.equal(execution.value, semantics.value);
+    assert.equal(execution.rmnSemanticDigest, DIGEST);
+    assert.equal(execution.rpcUrl, "http://rpc");
+    assert.equal(execution.bundlerUrl, "http://bundler");
+    assert.notEqual(execution.bindingPath, "wrong-binding");
+    assert.equal(execution.receiptWaitMs, 5_000);
+    assert.equal(execution.authorizeUserOperation, AUTHORITY.authorizeUserOperation);
+    assert.equal(execution.paymaster, authority.paymaster);
+    assert.deepEqual(semantics, { account: ACCOUNT, target: TARGET, calldata: "0xabcd", value: 17n });
+  });
+});
+
+test("malformed attribution suffixes and out-of-range native values refuse before semantic admission", async () => {
+  await withSigner({ semanticDigest: async () => assert.fail("must refuse before semantic admission") }, async (signer) => {
+    for (const dataSuffix of ["1234", "0x1", "0xzz", 0, null]) {
+      await assert.rejects(() => signer.writeContract({ address: TARGET, abi: ["function settle()"], functionName: "settle", dataSuffix }), /dataSuffix/u);
+    }
+    for (const value of [-1n, 1n << 256n]) {
+      await assert.rejects(() => signer.sendTransaction({ to: TARGET, data: "0x", value }), /uint256/u);
+    }
+  });
+});
+
+test("valid attribution suffix and native value are included in the semantic digest", async () => {
+  let semantics;
+  await withSigner({ semanticDigest: async (call) => { semantics = call; return DIGEST; } }, async (signer) => {
+    await signer.writeContract({ address: TARGET, abi: ["function settle() payable"], functionName: "settle", dataSuffix: "0xABCD", value: 23n });
+    assert.equal(semantics.calldata, new Interface(["function settle() payable"]).encodeFunctionData("settle") + "abcd");
+    assert.equal(semantics.value, 23n);
+  });
+});
+
+test("receipt lookups preserve SDK timeout bounds and refuse malformed hashes", async () => {
+  const calls = [];
+  await withSigner({ confirmationTimeoutMs: 5_000, publicClient: {
+    waitForTransactionReceipt: async (call) => { calls.push(call); return { status: "success", logs: [] }; },
+  } }, async (signer) => {
+    assert.deepEqual(await signer.waitForTransactionReceipt({ hash: TRANSACTION }), { status: "success", logs: [] });
+    await signer.waitForTransactionReceipt({ hash: TRANSACTION, timeout: 1_000 });
+    await signer.waitForTransactionReceipt({ hash: TRANSACTION, timeout: 90_000 });
+    await assert.rejects(() => signer.waitForTransactionReceipt({ hash: "0x" }), /transaction hash/u);
+    await assert.rejects(() => signer.waitForTransactionReceipt({ hash: TRANSACTION, timeout: 0 }), /timeout/u);
+    assert.deepEqual(calls.map(({ timeout }) => timeout), [5_000, 1_000, 5_000]);
+  });
+});
+
+test("execution without a transaction hash never becomes a settlement handle", async () => {
+  await withSigner({ execute: async () => ({ transactionHash: "accepted" }) }, async (signer) => {
+    await assert.rejects(() => signer.sendTransaction({ to: TARGET, data: "0x" }), /transaction hash/u);
+  });
+});
+
