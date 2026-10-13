@@ -27,6 +27,40 @@ test("checkpoint hash mismatch rolls back a bounded suffix and replays canonical
   assert.equal(receipt.reorg, true); assert.equal(receipt.replayFrom, "70"); assert.equal(receipt.indexed.length, 2);
 });
 
+test("reorg cleanup uses integer block ordering across 99 to 100, never deleting earlier paid witness history", async () => {
+  const storage = memory();
+  const blocks = new Map([[132n, h("a")]]);
+  const old = event(99, h("1")), oldFork = event(125, h("2"));
+  const rows = [old, oldFork];
+  const subject = index(storage, rows, blocks);
+  const before = await subject.reconcile({ finalized: { number: 132n, hash: h("a") } });
+  assert.equal(before.indexed.length, 2);
+  assert.equal((await storage.list("circulation/event/")).length, 2);
+  // The new finalized chain diverges at the previous checkpoint. With a
+  // 32-block rollback, only block >= 100 may be replaced.
+  blocks.set(132n, h("b"));
+  rows[1] = event(125, h("3"));
+  const after = await subject.reconcile({ finalized: { number: 133n, hash: h("c") } });
+  assert.equal(after.reorg, true);
+  assert.equal(after.replayFrom, "100");
+  const retained = await Promise.all((await storage.list("circulation/event/")).map(key => storage.get(key)));
+  assert.deepEqual(retained.map(row => row.blockNumber).sort(), ["125", "99"]);
+  assert.ok(retained.some(row => row.blockNumber === "99" && row.event.chainPosition.blockHash === h("1")));
+  assert.ok(retained.some(row => row.blockNumber === "125" && row.event.chainPosition.blockHash === h("3")));
+  assert.ok(!retained.some(row => row.event.chainPosition.blockHash === h("2")));
+});
+
+test("malformed persisted block coordinates refuse reorg instead of silently losing evidence", async () => {
+  const storage = memory(), blocks = new Map([[132n,h("a")]]);
+  const subject = index(storage, [event(125,h("2"))], blocks);
+  await subject.reconcile({ finalized: { number: 132n, hash: h("a") } });
+  const [key] = await storage.list("circulation/event/");
+  await storage.put(key, { ...(await storage.get(key)), blockNumber: "0100" });
+  blocks.set(132n,h("b"));
+  await assert.rejects(subject.reconcile({ finalized: { number: 133n, hash: h("c") } }), /canonical decimal/u);
+  assert.equal((await storage.get(key)).blockNumber, "0100");
+});
+
 test("corrupt carrier bytes refuse before storage", async () => {
   const storage = memory(), blocks = new Map([[70n, h("a")]]), corrupt = { ...event(70), carrierNi: "ni:///sha-256;wrong" };
   await assert.rejects(index(storage, [corrupt], blocks).reconcile({ finalized: { number: 70, hash: h("a") } }), /not verified/);
