@@ -94,7 +94,7 @@ test("authority options cannot replace the exact semantic-gated execution", asyn
   const authority = {
     ...AUTHORITY, target: ACCOUNT, calldata: "0xff", value: 999n,
     rmnSemanticDigest: TRANSACTION, rpcUrl: "http://wrong-chain", bundlerUrl: "http://wrong-bundler",
-    bindingPath: "wrong-binding", receiptWaitMs: 999_999, paymaster: { tag: "sponsor" },
+    bindingPath: "wrong-binding", expectedBindingSource: "wrong-source", receiptWaitMs: 999_999, paymaster: { tag: "sponsor" },
   };
   await withSigner({
     authority, confirmationTimeoutMs: 5_000,
@@ -113,6 +113,7 @@ test("authority options cannot replace the exact semantic-gated execution", asyn
     assert.equal(execution.rpcUrl, "http://rpc");
     assert.equal(execution.bundlerUrl, "http://bundler");
     assert.notEqual(execution.bindingPath, "wrong-binding");
+    assert.equal(execution.expectedBindingSource, JSON.stringify({ account: { address: ACCOUNT } }));
     assert.equal(execution.receiptWaitMs, 5_000);
     assert.equal(execution.authorizeUserOperation, AUTHORITY.authorizeUserOperation);
     assert.equal(execution.paymaster, authority.paymaster);
@@ -158,5 +159,31 @@ test("execution without a transaction hash never becomes a settlement handle", a
   await withSigner({ execute: async () => ({ transactionHash: "accepted" }) }, async (signer) => {
     await assert.rejects(() => signer.sendTransaction({ to: TARGET, data: "0x" }), /transaction hash/u);
   });
+});
+
+test("semantic-gate binding replacement refuses in the actual executor before any RPC", async (context) => {
+  const root = mkdtempSync(join(tmpdir(), "x402-binding-drift-"));
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const bindingPath = join(root, "binding.json");
+  const binding = { account: { address: ACCOUNT }, policy: { signer: ACCOUNT }, chain: { chainId: 5615611 } };
+  let networkCalls = 0;
+  context.mock.method(globalThis, "fetch", async () => { networkCalls += 1; assert.fail("binding drift must refuse before any network request"); });
+  for (const replacement of [
+    { ...binding, account: { address: TARGET } },
+    { ...binding, policy: { signer: TARGET } },
+    { ...binding, chain: { chainId: 5615610 } },
+  ]) {
+    writeFileSync(bindingPath, JSON.stringify(binding));
+    const signer = createEnterpriseAccountFacilitatorSigner({
+      bindingPath, authority: AUTHORITY, rpcUrl: "http://rpc", bundlerUrl: "http://bundler", publicClient: {},
+      semanticDigest: async (call) => {
+        assert.equal(call.account, ACCOUNT);
+        writeFileSync(bindingPath, JSON.stringify(replacement));
+        return DIGEST;
+      },
+    });
+    await assert.rejects(() => signer.sendTransaction({ to: TARGET, data: "0x" }), /binding changed after semantic admission/u);
+  }
+  assert.equal(networkCalls, 0);
 });
 

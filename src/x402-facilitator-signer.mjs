@@ -28,7 +28,8 @@ export function createEnterpriseAccountFacilitatorSigner({
   publicClient = createPublicClient({ transport: http(rpcUrl) }),
   execute = executeEnterpriseUserOperation,
 }) {
-  const binding = JSON.parse(readFileSync(bindingPath, "utf8"));
+  const expectedBindingSource = readFileSync(bindingPath, "utf8");
+  const binding = JSON.parse(expectedBindingSource);
   const account = binding.account?.address?.toLowerCase();
   if (!ADDRESS.test(account ?? "")) throw new TypeError("facilitator binding must name one enterprise smart account");
   if (typeof semanticDigest !== "function") throw new TypeError("facilitator signer requires an RMN semantic-digest gate");
@@ -45,7 +46,7 @@ export function createEnterpriseAccountFacilitatorSigner({
     const call = Object.freeze({ account, target: target.toLowerCase(), calldata: calldata.toLowerCase(), value: normalizedValue });
     const digest = await semanticDigest(call);
     if (!BYTES32.test(digest ?? "")) throw new TypeError("RMN semantic-digest gate must return bytes32");
-    const receipt = await execute({ ...executionAuthority, bindingPath, rpcUrl, bundlerUrl, target: call.target, calldata: call.calldata, value: call.value, rmnSemanticDigest: digest, receiptWaitMs: confirmationTimeout });
+    const receipt = await execute({ ...executionAuthority, bindingPath, expectedBindingSource, rpcUrl, bundlerUrl, target: call.target, calldata: call.calldata, value: call.value, rmnSemanticDigest: digest, receiptWaitMs: confirmationTimeout });
     if (!BYTES32.test(receipt?.transactionHash ?? "")) throw new TypeError("facilitator execution receipt must contain a transaction hash");
     return receipt.transactionHash;
   }
