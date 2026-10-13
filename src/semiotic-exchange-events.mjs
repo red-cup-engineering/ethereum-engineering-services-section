@@ -76,16 +76,15 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
     topics: [demandRaised.topicHash],
   }]);
 
-  return logs.map((log) => {
+  const admitted = logs.map((log) => {
     const decoded = events.parseLog(log);
     const carrier = getBytes(decoded.args.carrier);
-    return Object.freeze({
-      chainPosition: Object.freeze({
-        blockNumber: BigInt(log.blockNumber),
-        blockHash: log.blockHash,
-        transactionHash: log.transactionHash,
-        logIndex: Number(BigInt(log.logIndex)),
-      }),
+    // This specialized reader feeds real A2A hire submission. It must
+    // receive the same canonical SHA-256 identity as full event replay,
+    // rather than trusting a bare event topic from an RPC response.
+    return assertCarrierIdentity({
+      kind: "DemandRaised",
+      chainPosition: position(log),
       demand: decoded.args.demand,
       raiser: decoded.args.raiser,
       wantedLaw: decoded.args.wantedLaw,
@@ -94,15 +93,25 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
       carrierHex: hexlify(carrier),
     });
   });
+  admitted.sort(chainOrder);
+  return Object.freeze(admitted);
 }
 
 function position(log) {
+  const block = blockNumber(log.blockNumber, "log.blockNumber");
+  const index = blockNumber(log.logIndex, "log.logIndex");
+  if (index > BigInt(Number.MAX_SAFE_INTEGER)) throw new RangeError("log index exceeds safe integer range");
   return Object.freeze({
-    blockNumber: BigInt(log.blockNumber),
+    blockNumber: block,
     blockHash: log.blockHash,
     transactionHash: log.transactionHash,
-    logIndex: Number(BigInt(log.logIndex)),
+    logIndex: Number(index),
   });
+}
+function chainOrder(left, right) {
+  return left.chainPosition.blockNumber < right.chainPosition.blockNumber ? -1 :
+    left.chainPosition.blockNumber > right.chainPosition.blockNumber ? 1 :
+    left.chainPosition.logIndex - right.chainPosition.logIndex;
 }
 
 function optionalCarrier(decoded) {
@@ -153,7 +162,7 @@ export async function readSemioticExchangeEvents({ rpcUrl, exchange, fromBlock, 
     }
     return assertCarrierIdentity(event);
   });
-  witnessed.sort((left, right) => left.chainPosition.blockNumber < right.chainPosition.blockNumber ? -1 : left.chainPosition.blockNumber > right.chainPosition.blockNumber ? 1 : left.chainPosition.logIndex - right.chainPosition.logIndex);
+  witnessed.sort(chainOrder);
   return Object.freeze(witnessed);
 }
 
