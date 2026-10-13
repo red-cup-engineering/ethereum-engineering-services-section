@@ -144,9 +144,11 @@ test("cold-spore adapter admits canonical hires before ordered provider submissi
     exchange,
     fromBlock: 31n,
     toBlock: 32n,
+    // Deliberately return the logs in reverse order: the shared chain
+    // reader must restore exact causal order before effects on providers.
     rpc: rpcWith([
-      logFor({ carrier: firstCarrier, blockNumber: 31, logIndex: 0 }),
       logFor({ carrier: secondCarrier, blockNumber: 32, logIndex: 0 }),
+      logFor({ carrier: firstCarrier, blockNumber: 31, logIndex: 0 }),
     ]),
     conformHireInput: ({ carrier }) => ({ hire: { kind: "hire", byte: carrier[1] }, canonicalCarrier: carrier }),
     selectProvider: ({ demand, hire }) => ({ id: `provider-${hire.byte}`, demand: demand.demand }),
