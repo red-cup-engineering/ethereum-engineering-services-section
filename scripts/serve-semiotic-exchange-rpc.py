@@ -3,22 +3,55 @@
 
 import json
 import os
+import pathlib
 import re
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-CHAIN_RPC = "http://127.0.0.1:8561"
-EXCHANGE = "0x98bbc65824962b61df876a47b5779c4ecbbd4939"
-DEPLOYMENT_BLOCK = 5619
-EVENT_TOPICS = [
-    "0xc047c3429748a223b56b02776b2c3993c72d320b8c685d712a6cad64612738e9",
-    "0x82f2bb67acbffd5675cbbf5ddf0528513b5f3fad32c2450ea140aaca775810dd",
-    "0x6467956a6570214a321c98e8430560bfc5c26ad205b9f716f73e7b871a19e217",
-    "0x0f0309f9d310294eab5c1f23f84eb646597511ddffdb15f4a36c598675b4aeed",
-    "0x3a7feaa064aeb6612f758876640d573a2d8a75dceb49942a8435289e03495880",
-    "0xc975c954b646cc7c315af0d6d8e768d84a6febf92e822d402ba9c4f3ee7246d9",
-]
+CONFIG_PATH = pathlib.Path(__file__).resolve().parents[1] / "content" / "config" / "union-alpha-chain-semiotic-exchange-reader.json"
+
+
+def load_configuration(path=CONFIG_PATH):
+    with open(path, encoding="utf-8") as source:
+        value = json.load(source)
+    if not isinstance(value, dict) or value.get("type") != "UnionSemioticExchangeHistoryReaderConfiguration" or value.get("version") != 1:
+        raise ValueError("canonical SemioticExchange reader configuration required")
+    if not isinstance(value.get("chainId"), str) or not re.fullmatch(r"eip155:[1-9][0-9]*", value["chainId"]):
+        raise ValueError("reader chainId must be CAIP-2 eip155")
+    if not isinstance(value.get("exchange"), str) or not re.fullmatch(r"0x[0-9a-fA-F]{40}", value["exchange"]):
+        raise ValueError("reader exchange must be an EVM address")
+    if type(value.get("deploymentBlock")) is not int or value["deploymentBlock"] < 0:
+        raise ValueError("reader deploymentBlock must be a nonnegative integer")
+    topics = value.get("eventTopics")
+    if not isinstance(topics, list) or not topics or any(not isinstance(topic, str) or not re.fullmatch(r"0x[0-9a-fA-F]{64}", topic) for topic in topics):
+        raise ValueError("reader eventTopics must be nonempty bytes32 topics")
+    if not isinstance(value.get("chainRpc"), str) or not value["chainRpc"].startswith(("http://", "https://")):
+        raise ValueError("reader chainRpc must be an HTTP endpoint")
+    membrane = value.get("membrane")
+    if not isinstance(membrane, dict) or membrane.get("host") != "10.128.0.2" or membrane.get("port") != 8562 or membrane.get("path") != "/v1/semiotic-exchange/rpc":
+        raise ValueError("reader membrane must bind the admitted private read boundary")
+    return value
+
+
+CONFIG = load_configuration()
+CHAIN_RPC = CONFIG["chainRpc"]
+CHAIN_ID = int(CONFIG["chainId"].split(":")[1])
+EXCHANGE = CONFIG["exchange"].lower()
+DEPLOYMENT_BLOCK = CONFIG["deploymentBlock"]
+EVENT_TOPICS = CONFIG["eventTopics"]
 HEX_BLOCK = re.compile(r"^0x(?:0|[1-9a-f][0-9a-f]*)$")
+
+
+def verify_chain(opener=urllib.request.urlopen):
+    probe = {"jsonrpc": "2.0", "id": 1, "method": "eth_chainId", "params": []}
+    request = urllib.request.Request(CHAIN_RPC, data=json.dumps(probe).encode(), headers={"Content-Type": "application/json"}, method="POST")
+    with opener(request, timeout=60) as response:
+        body = response.read(16385)
+    if len(body) > 16384:
+        raise ValueError("chain identity response exceeds the membrane bound")
+    identity = json.loads(body)
+    if not isinstance(identity, dict) or identity.get("jsonrpc") != "2.0" or identity.get("id") != 1 or "error" in identity or not isinstance(identity.get("result"), str) or not HEX_BLOCK.fullmatch(identity["result"]) or int(identity["result"], 16) != CHAIN_ID:
+        raise ValueError("SemioticExchange reader RPC chain differs from its canonical configuration")
 
 
 def admit_rpc(value):
@@ -44,13 +77,14 @@ def admit_rpc(value):
 
 class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        if self.path != "/v1/semiotic-exchange/rpc":
+        if self.path != CONFIG["membrane"]["path"]:
             return self.reply(404, {"error": "not found"})
         try:
             length = int(self.headers.get("content-length", "0"))
             if length < 1 or length > 16384:
                 raise ValueError("bounded JSON body required")
             request = admit_rpc(json.loads(self.rfile.read(length)))
+            verify_chain()
             upstream = urllib.request.Request(CHAIN_RPC, data=json.dumps(request, separators=(",", ":")).encode(), headers={"Content-Type": "application/json"}, method="POST")
             with urllib.request.urlopen(upstream, timeout=60) as response:
                 body = response.read(16 * 1024 * 1024 + 1)
@@ -85,8 +119,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    host = os.environ.get("SEMIOTIC_EXCHANGE_RPC_HOST", "10.128.0.2")
-    port = int(os.environ.get("SEMIOTIC_EXCHANGE_RPC_PORT", "8562"))
-    if host != "10.128.0.2" or port != 8562:
+    host = os.environ.get("SEMIOTIC_EXCHANGE_RPC_HOST", CONFIG["membrane"]["host"])
+    port = int(os.environ.get("SEMIOTIC_EXCHANGE_RPC_PORT", str(CONFIG["membrane"]["port"])))
+    if host != CONFIG["membrane"]["host"] or port != CONFIG["membrane"]["port"]:
         raise SystemExit("the membrane binds only the cloud machine private address 10.128.0.2:8562")
+    verify_chain()
     ThreadingHTTPServer((host, port), Handler).serve_forever()
+
