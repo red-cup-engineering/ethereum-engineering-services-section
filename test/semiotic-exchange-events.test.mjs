@@ -16,7 +16,7 @@ const iface = new Interface(SEMIOTIC_EXCHANGE_EVENTS_ABI);
 const exchange = "0x98bBC65824962b61dF876A47B5779C4EcBBD4939";
 const carrier = new TextEncoder().encode("rmn:org.emsenn.a2a-rmn-hire-request.v1:test");
 const event = iface.encodeEventLog(iface.getEvent("DemandRaised"), [
-  `0x${"11".repeat(32)}`,
+  sha256(carrier),
   "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
   `0x${"22".repeat(32)}`,
   `0x${"33".repeat(32)}`,
@@ -30,9 +30,9 @@ function rpcWith(logs, calls = []) {
   };
 }
 
-function logFor({ demandByte, carrier: demandCarrier, blockNumber, logIndex }) {
+function logFor({ carrier: demandCarrier, blockNumber, logIndex }) {
   const encoded = iface.encodeEventLog(iface.getEvent("DemandRaised"), [
-    `0x${demandByte.repeat(32)}`,
+    sha256(demandCarrier),
     "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
     `0x${"22".repeat(32)}`,
     `0x${"33".repeat(32)}`,
@@ -108,6 +108,32 @@ test("refuses unbounded or reversed reads", async () => {
   );
 });
 
+test("demand-only reader refuses forged content claims before any provider submission", async () => {
+  const forged = iface.encodeEventLog(iface.getEvent("DemandRaised"), [
+    `0x${"11".repeat(32)}`,
+    "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B",
+    `0x${"22".repeat(32)}`, `0x${"33".repeat(32)}`, carrier,
+  ]);
+  let submitted = 0;
+  await assert.rejects(projectDemandRaised({
+    rpcUrl: "http://chain.invalid", exchange, fromBlock: 12n, toBlock: 14n,
+    rpc: rpcWith([{ ...forged, blockNumber: "0xd",
+      blockHash: `0x${"44".repeat(32)}`, transactionHash: `0x${"55".repeat(32)}`,
+      logIndex: "0x1" }]),
+    submitDemand: async () => { submitted++; },
+  }), /canonical content address/u);
+  assert.equal(submitted, 0);
+});
+
+test("a chain log index outside JavaScript's exact integer range is refused", async () => {
+  await assert.rejects(readDemandRaised({
+    rpcUrl: "http://chain.invalid", exchange, fromBlock: 12n, toBlock: 14n,
+    rpc: rpcWith([{ ...event, blockNumber: "0xd",
+      blockHash: `0x${"44".repeat(32)}`, transactionHash: `0x${"55".repeat(32)}`,
+      logIndex: "0x20000000000000" }]),
+  }), /safe integer range/u);
+});
+
 test("cold-spore adapter admits canonical hires before ordered provider submission", async () => {
   const firstCarrier = new Uint8Array([0x82, 0x01, 0x02]);
   const secondCarrier = new Uint8Array([0x82, 0x03, 0x04]);
@@ -119,8 +145,8 @@ test("cold-spore adapter admits canonical hires before ordered provider submissi
     fromBlock: 31n,
     toBlock: 32n,
     rpc: rpcWith([
-      logFor({ demandByte: "aa", carrier: firstCarrier, blockNumber: 31, logIndex: 0 }),
-      logFor({ demandByte: "bb", carrier: secondCarrier, blockNumber: 32, logIndex: 0 }),
+      logFor({ carrier: firstCarrier, blockNumber: 31, logIndex: 0 }),
+      logFor({ carrier: secondCarrier, blockNumber: 32, logIndex: 0 }),
     ]),
     conformHireInput: ({ carrier }) => ({ hire: { kind: "hire", byte: carrier[1] }, canonicalCarrier: carrier }),
     selectProvider: ({ demand, hire }) => ({ id: `provider-${hire.byte}`, demand: demand.demand }),
@@ -133,7 +159,7 @@ test("cold-spore adapter admits canonical hires before ordered provider submissi
   assert.equal(receipt.finality.status, "finalized");
   assert.equal(receipt.witnessed, 2);
   assert.equal(receipt.nextBlock, 33n);
-  assert.deepEqual(seen, [`0x${"aa".repeat(32)}`, `0x${"bb".repeat(32)}`]);
+  assert.deepEqual(seen, [sha256(firstCarrier), sha256(secondCarrier)]);
   assert.deepEqual(receipt.invocations.map(({ submission }) => submission.provider), ["provider-1", "provider-3"]);
   assert.throws(() => { receipt.invocations.push({}); }, TypeError);
   assert.throws(() => { receipt.invocations[0].submission.accepted = false; }, TypeError);
@@ -147,7 +173,7 @@ test("cold-spore adapter refuses malformed or noncanonical carriers before selec
     exchange,
     fromBlock: 40n,
     toBlock: 40n,
-    rpc: rpcWith([logFor({ demandByte: "cc", carrier: new Uint8Array([0x81, 0x01]), blockNumber: 40, logIndex: 0 })]),
+    rpc: rpcWith([logFor({ carrier: new Uint8Array([0x81, 0x01]), blockNumber: 40, logIndex: 0 })]),
     selectProvider: () => { selected += 1; return { id: "never" }; },
     submitHire: () => { throw new Error("must not submit"); },
   };
