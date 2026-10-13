@@ -73,6 +73,7 @@ async function waitForUserOperationReceipt(bundlerUrl, userOpHash, waitMs) {
  */
 export async function prepareEnterpriseUserOperation({
   bindingPath,
+  expectedBindingSource,
   rpcUrl,
   bundlerUrl,
   target,
@@ -90,7 +91,16 @@ export async function prepareEnterpriseUserOperation({
   if (typeof signUserOperationHash !== "function") throw new TypeError("signUserOperationHash authority is required");
   if (typeof authorizeUserOperation !== "function") throw new TypeError("authorizeUserOperation authority is required");
   if (!bundlerUrl && preparationProfile === undefined) throw new Error("bundlerUrl is required unless a bounded preparationProfile replaces bundler estimation");
-  const binding = JSON.parse(readFileSync(bindingPath, "utf8"));
+  // Read once: a semantic gate may have yielded after it witnessed this file.
+  // Compare exact authored bytes and parse those same checked bytes, so a
+  // replacement cannot change account/policy/chain between admission and use.
+  // Ordinary callers need not supply an expectation.
+  const bindingSource = readFileSync(bindingPath, "utf8");
+  if (expectedBindingSource !== undefined) {
+    if (typeof expectedBindingSource !== "string") throw new TypeError("expectedBindingSource must be an immutable authored binding string");
+    if (bindingSource !== expectedBindingSource) throw new Error("enterprise account binding changed after semantic admission");
+  }
+  const binding = JSON.parse(bindingSource);
   const account = address(binding.account?.address, "binding account");
   const policySigner = address(binding.policy?.signer, "binding policy signer");
   const callTarget = address(target, "target");
