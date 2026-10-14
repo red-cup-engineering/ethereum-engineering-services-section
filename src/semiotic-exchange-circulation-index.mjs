@@ -39,7 +39,15 @@ function storageContract(storage) {
 function addresses(exchange, companions) {
   const primary = Object.freeze({ address: getAddress(exchange), deploymentBlock: V1_BACKFILL_BLOCK, version: 1 });
   if (!Array.isArray(companions)) throw new TypeError("companions must be an array");
-  const extra = companions.map((entry, index) => Object.freeze({ address: getAddress(entry?.address), deploymentBlock: number(entry?.deploymentBlock, `companions[${index}].deploymentBlock`), version: entry?.version ?? 1 }));
+  // A contract is one witness source. Duplicate/case-aliased companions must
+  // not count the same chain logs twice or manufacture multiple producers.
+  const seen = new Set([primary.address.toLowerCase()]);
+  const extra = companions.map((entry, index) => {
+    const address = getAddress(entry?.address), key = address.toLowerCase();
+    if (seen.has(key)) throw new TypeError("duplicate semiotic exchange contract source");
+    seen.add(key);
+    return Object.freeze({ address, deploymentBlock: number(entry?.deploymentBlock, `companions[${index}].deploymentBlock`), version: entry?.version ?? 1 });
+  });
   return Object.freeze([primary, ...extra]);
 }
 
