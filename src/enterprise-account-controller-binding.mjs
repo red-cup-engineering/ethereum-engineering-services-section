@@ -1,5 +1,5 @@
 import { Interface, TypedDataEncoder, keccak256, toUtf8Bytes } from "ethers";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
 
 const PROFILE = "org.emsenn.evm.enterprise-account-controller-binding.v1";
 const MAGIC = "0x1626ba7e";
