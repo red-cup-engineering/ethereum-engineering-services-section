@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { lstatSync } from "node:fs";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { jsonRpc } from "../src/public-evm-ledger.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 function option(name) { const at = process.argv.indexOf(name); return at === -1 ? undefined : process.argv[at + 1]; }
@@ -29,12 +30,8 @@ if (!rpcUrl || !/^eip155:[1-9][0-9]*$/u.test(network ?? "")
 // environment; explicit encrypted custody is required even for dev chains.
 privateRegularFile(keystore, "deployer keystore");
 privateRegularFile(passwordFile, "deployer password file");
-const chain = await fetch(rpcUrl, {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_chainId", params: [] })
-}).then((response) => response.json());
-if (`eip155:${BigInt(chain.result)}` !== network) throw new Error("integration settlement token RPC and selected network differ");
+const chainId = await jsonRpc(rpcUrl, "eth_chainId", []);
+if (`eip155:${BigInt(chainId)}` !== network) throw new Error("integration settlement token RPC and selected network differ");
 const result = spawnSync("forge", [
   "create",
   "src/IntegrationSettlementToken.sol:IntegrationSettlementToken",
@@ -55,12 +52,34 @@ const result = spawnSync("forge", [
 if (result.status !== 0) throw new Error((result.stderr || result.stdout).trim());
 const start = result.stdout.indexOf("{");
 const receipt = JSON.parse(result.stdout.slice(start));
+if (!/^0x[0-9a-fA-F]{40}$/u.test(receipt.deployedTo ?? "") ||
+    !/^0x[0-9a-fA-F]{64}$/u.test(receipt.transactionHash ?? "")) {
+  throw new Error("Foundry did not report one valid deployment address and transaction");
+}
+// A Forge exit status is not an installed-contract receipt. Require exact
+// chain evidence before producing a deployment record; no second registry
+// or mutable claim of successful installation is created by this program.
+const observed = await jsonRpc(rpcUrl, "eth_getTransactionReceipt", [receipt.transactionHash]);
+if (observed?.status !== "0x1" ||
+    observed.contractAddress?.toLowerCase() !== receipt.deployedTo.toLowerCase() ||
+    observed.transactionHash?.toLowerCase() !== receipt.transactionHash.toLowerCase() ||
+    !/^0x[0-9a-fA-F]+$/u.test(observed.blockNumber ?? "")) {
+  throw new Error("deployed token transaction was not independently received on the selected chain");
+}
+const code = await jsonRpc(rpcUrl, "eth_getCode", [receipt.deployedTo, observed.blockNumber]);
+if (typeof code !== "string" || !/^0x(?:[0-9a-fA-F]{2})+$/u.test(code)) {
+  throw new Error("deployed token has no installed runtime bytecode at its receipt block");
+}
 process.stdout.write(`${JSON.stringify({
   type: "IntegrationSettlementTokenDeployment",
   standard: "org.emsenn.evm.integration-settlement-token.eip3009.v1",
   chainId: network,
   address: receipt.deployedTo,
   transactionHash: receipt.transactionHash,
+  blockNumber: BigInt(observed.blockNumber).toString(),
+  codeSizeBytes: (code.length - 2) / 2,
+  receiptStatus: "0x1",
+  sourceObservation: "receipt-and-nonempty-bytecode-at-receipt-block",
   initialHolder: holder.toLowerCase(),
   initialSupply: supply,
   productionEligible: false
