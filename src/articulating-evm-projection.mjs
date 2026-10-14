@@ -1,7 +1,7 @@
-import articulationCellArtifact from "../data/state/forge-out-state/ArticulationCell.sol/ArticulationCell.json" with { type: "json" };
-import articulatingArtifact from "../data/state/forge-out-state/Articulating.sol/Articulating.json" with { type: "json" };
-import markArtifact from "../data/state/forge-out-state/ArticulatingMark.sol/Mark.json" with { type: "json" };
-import utteranceArtifact from "../data/state/forge-out-state/ArticulatingUtterance.sol/Utterance.json" with { type: "json" };
+import articulationCellArtifact from "../dist/articulating/ArticulationCell.json" with { type: "json" };
+import articulatingArtifact from "../dist/articulating/Articulating.json" with { type: "json" };
+import markArtifact from "../dist/articulating/Mark.json" with { type: "json" };
+import utteranceArtifact from "../dist/articulating/Utterance.json" with { type: "json" };
 import { semanticBytes } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { decodeArticulatingRequest } from "@red-cup-engineering/signcell/articulating";
 import { loadVerifiedDeploymentManifest } from "./versioned-deployment-manifest.mjs";
@@ -33,7 +33,7 @@ const artifacts = Object.freeze({
 
 function artifactBytecode(artifact) {
   const bytecode = artifact?.bytecode?.object;
-  if (!/^0x[0-9a-f]+$/iu.test(bytecode ?? "")) throw new Error("canonical Forge artifact has no creation bytecode");
+  if (!/^0x[0-9a-f]+$/iu.test(bytecode ?? "")) throw new Error("canonical compiled artifact has no creation bytecode");
   return bytecode;
 }
 
@@ -70,8 +70,10 @@ function stackMember(key, constructorArguments, deployer) {
  * Compile one canonical articulating request into its EVM state-transition die.
  *
  * This is a projection, not another semantic implementation. The request decoder
- * recovers the operation and values; the checked Forge artifacts supply the
- * ABI and bytecode. Callers must resolve the declared reads at one witnessed
+ * recovers the operation and values; declared source compilation generates the
+ * ABI and bytecode before the runtime package is packed. The historical committed
+ * Forge outputs remain evidence and are not substituted for those generated products.
+ * Callers must resolve the declared reads at one witnessed
  * block and retain only presently lawful writes before submitting the calls
  * through EnterpriseAccount.executeSen.
  */

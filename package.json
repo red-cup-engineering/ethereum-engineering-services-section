@@ -19,7 +19,9 @@
     "foundry.toml",
     "test/BeefyLegacyRecoveryFork.t.sol",
     "test/TypedCommitmentProjection.t.sol",
-    "test/fixtures/guile-typed-commitment.mjs"
+    "test/fixtures/guile-typed-commitment.mjs",
+    "data/records/articulating-compilation.json",
+    "dist/articulating"
   ],
   "exports": {
     "./settlement-key-custody": "./src/settlement-key-custody.mjs",
@@ -114,6 +116,17 @@
     "@foundry-rs/anvil": "1.7.1",
     "@foundry-rs/cast": "1.7.1",
     "@red-cup-engineering/computer-deployment-engine": "workspace:*",
-    "@lenticule-science/witness-journal-rdf-projection-service": "workspace:*"
+    "@lenticule-science/witness-journal-rdf-projection-service": "workspace:*",
+    "solc": "0.8.28"
+  },
+  "nodeRuntimeGeneration": {
+    "module": "scripts/generate-articulating-artifacts.mjs",
+    "export": "generateArticulatingArtifacts",
+    "outputs": [
+      "dist/articulating/ArticulationCell.json",
+      "dist/articulating/Articulating.json",
+      "dist/articulating/Mark.json",
+      "dist/articulating/Utterance.json"
+    ]
   }
 }

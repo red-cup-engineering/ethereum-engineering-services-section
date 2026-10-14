@@ -1,0 +1,35 @@
+{
+  "type": "ArticulatingSolidityCompilation",
+  "version": 1,
+  "compiler": "solc@0.8.28",
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "viaIR": true,
+    "evmVersion": "cancun"
+  },
+  "contracts": [
+    {
+      "source": "src/ArticulationCell.sol",
+      "name": "ArticulationCell",
+      "output": "dist/articulating/ArticulationCell.json"
+    },
+    {
+      "source": "src/Articulating.sol",
+      "name": "Articulating",
+      "output": "dist/articulating/Articulating.json"
+    },
+    {
+      "source": "src/ArticulatingMark.sol",
+      "name": "Mark",
+      "output": "dist/articulating/Mark.json"
+    },
+    {
+      "source": "src/ArticulatingUtterance.sol",
+      "name": "Utterance",
+      "output": "dist/articulating/Utterance.json"
+    }
+  ]
+}
