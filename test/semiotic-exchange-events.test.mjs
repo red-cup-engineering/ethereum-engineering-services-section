@@ -26,7 +26,9 @@ const event = iface.encodeEventLog(iface.getEvent("DemandRaised"), [
 function rpcWith(logs, calls = []) {
   return async (url, method, params) => {
     calls.push({ url, method, params });
-    return logs;
+    // Ethereum eth_getLogs always supplies the emitting address. A test
+    // override can deliberately return the wrong address or interval.
+    return logs.map(log => ({ address: exchange, ...log }));
   };
 }
 
@@ -132,6 +134,28 @@ test("a chain log index outside JavaScript's exact integer range is refused", as
       blockHash: `0x${"44".repeat(32)}`, transactionHash: `0x${"55".repeat(32)}`,
       logIndex: "0x20000000000000" }]),
   }), /safe integer range/u);
+});
+
+test("an RPC response cannot silently substitute contract, block or removed logs", async () => {
+  const valid = {
+    ...event, blockNumber: "0xd", blockHash: `0x${"44".repeat(32)}`,
+    transactionHash: `0x${"55".repeat(32)}`, logIndex: "0x0",
+  };
+  const illegal = [
+    { ...valid, address: "0x1111111111111111111111111111111111111111" },
+    { ...valid, blockNumber: "0xf" },
+    { ...valid, removed: true },
+    { ...valid, blockHash: "0xabcdef" },
+    { ...valid, transactionHash: "0xabcdef" },
+  ];
+  for (const log of illegal) {
+    const options = {
+      rpcUrl: "http://chain.invalid", exchange, fromBlock: 12n, toBlock: 14n,
+      rpc: rpcWith([log]),
+    };
+    await assert.rejects(readDemandRaised(options), /admitted contract or finalized interval/u);
+    await assert.rejects(readSemioticExchangeEvents(options), /admitted contract or finalized interval/u);
+  }
 });
 
 test("cold-spore adapter admits canonical hires before ordered provider submission", async () => {
