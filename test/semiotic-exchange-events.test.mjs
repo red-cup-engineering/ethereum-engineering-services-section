@@ -158,6 +158,23 @@ test("an RPC response cannot silently substitute contract, block or removed logs
   }
 });
 
+test("duplicated RPC log coordinates refuse before any provider effect or double work", async () => {
+  const same = {
+    ...event, blockNumber: "0xd", blockHash: `0x${"44".repeat(32)}`,
+    transactionHash: `0x${"55".repeat(32)}`, logIndex: "0x2",
+  };
+  let submitted = 0;
+  const options = {
+    rpcUrl: "http://chain.invalid", exchange, fromBlock: 12n, toBlock: 14n,
+    rpc: rpcWith([same,same]),
+  };
+  await assert.rejects(readSemioticExchangeEvents(options), /duplicate chain log coordinate/u);
+  await assert.rejects(projectDemandRaised({
+    ...options, submitDemand: () => { submitted += 1; },
+  }), /duplicate chain log coordinate/u);
+  assert.equal(submitted,0);
+});
+
 test("cold-spore adapter admits canonical hires before ordered provider submission", async () => {
   const firstCarrier = new Uint8Array([0x82, 0x01, 0x02]);
   const secondCarrier = new Uint8Array([0x82, 0x03, 0x04]);
