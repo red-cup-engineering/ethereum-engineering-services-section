@@ -86,6 +86,42 @@ test("new exchange companion backfills from its own deployment block after prima
   assert.equal((await storage.list("circulation/event/")).length,2);
 });
 
+test("multi-thousand-block exchange backfill uses bounded closed RPC windows and replays on restart", async () => {
+  const storage = memory(), reads = [], rows = [event(70,h("1")),event(1094,h("2")),event(2500,h("3"))];
+  const subject = createSemioticExchangeCirculationIndex({
+    storage, exchange,
+    getBlock: async () => ({hash:h("a")}),
+    readEvents: async ({fromBlock,toBlock}) => {
+      reads.push([fromBlock.toString(),toBlock.toString()]);
+      return rows.filter(({chainPosition})=>chainPosition.blockNumber>=fromBlock && chainPosition.blockNumber<=toBlock);
+    },
+  });
+  const first = await subject.reconcile({finalized:{number:2500n,hash:h("a")}});
+  assert.deepEqual(reads,[["70","1093"],["1094","2117"],["2118","2500"]]);
+  assert.equal(first.indexed.length,3);
+  reads.length=0;
+  const again=await subject.reconcile({finalized:{number:2500n,hash:h("a")}});
+  assert.equal(again.indexed.length,0);
+  assert.deepEqual(reads,[]);
+  assert.equal((await storage.list("circulation/event/")).length,3);
+});
+
+test("an injected chain reader cannot persist events outside the requested bounded window", async () => {
+  const storage=memory();
+  const subject=createSemioticExchangeCirculationIndex({
+    storage,exchange,blockWindow:2n,getBlock:async()=>({hash:h("a")}),
+    readEvents:async()=>[event(500,h("2"))],
+  });
+  await assert.rejects(subject.reconcile({finalized:{number:73n,hash:h("a")}}),/outside its requested window/u);
+  assert.equal((await storage.list("circulation/event/")).length,0);
+  assert.equal(await storage.get("circulation/checkpoint"),null);
+  for(const bad of [0n,4097n,-1n]) {
+    assert.throws(()=>createSemioticExchangeCirculationIndex({
+      storage:memory(),exchange,blockWindow:bad,getBlock:async()=>({hash:h("a")}),
+    }),/blockWindow|nonnegative/u);
+  }
+});
+
 test("corrupt carrier bytes refuse before storage", async () => {
   const storage = memory(), blocks = new Map([[70n, h("a")]]), corrupt = { ...event(70), carrierNi: "ni:///sha-256;wrong" };
   await assert.rejects(index(storage, [corrupt], blocks).reconcile({ finalized: { number: 70, hash: h("a") } }), /not verified/);
