@@ -91,6 +91,17 @@ export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRC
         }
       }
     }
+    // A supplied "finalized" coordinate is testimony, not evidence that
+    // a currently reachable chain bears that hash. Receive it through the
+    // existing injected block reader BEFORE deleting reorg records or storing
+    // any new event. Finality never silently travels backward on a restart.
+    if (prior && head.number < number(prior.finalized.number, "prior finalized block")) {
+      throw new RangeError("semiotic exchange finalized head regressed below its durable checkpoint");
+    }
+    const headOnChain = await getBlock(head.number);
+    if (hash(headOnChain?.hash, "observed finalized head hash") !== head.hash) {
+      throw new TypeError("semiotic exchange finalized head hash differs from observed block");
+    }
     let replayFrom = null, reorg = false;
     if (prior) {
       const observed = await getBlock(prior.finalized.number);
