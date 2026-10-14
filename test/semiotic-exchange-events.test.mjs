@@ -3,6 +3,7 @@ import test from "node:test";
 import { Interface, sha256 } from "ethers";
 import {
   SEMIOTIC_EXCHANGE_EVENTS_ABI,
+  MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS,
   createSemioticExchangeA2aSources,
   invokeFinalizedDemandInterval,
   projectSemioticExchangeActivities,
@@ -108,6 +109,21 @@ test("refuses unbounded or reversed reads", async () => {
     readDemandRaised({ rpcUrl: "x", exchange, fromBlock: 2n, toBlock: 1n }),
     /precedes/,
   );
+});
+
+test("every direct EVM exchange reader respects the existing bounded circulation window before RPC", async () => {
+  assert.equal(MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS, 4096n);
+  for (const read of [readDemandRaised, readSemioticExchangeEvents]) {
+    const calls = [];
+    const args = { rpcUrl: "http://chain.invalid", exchange, fromBlock: 70n,
+      toBlock: 70n + MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS - 1n,
+      rpc: rpcWith([], calls) };
+    assert.deepEqual(await read(args), []);
+    assert.equal(calls.length, 1);
+    await assert.rejects(read({ ...args, toBlock: args.toBlock + 1n }),
+      /exceeds 4096 blocks/u);
+    assert.equal(calls.length, 1, "oversized requests must never reach the chain");
+  }
 });
 
 test("demand-only reader refuses forged content claims before any provider submission", async () => {

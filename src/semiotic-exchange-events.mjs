@@ -1,6 +1,10 @@
 import { Interface, getAddress, getBytes, hexlify, isHexString, sha256, toBeHex } from "ethers";
 import { jsonRpc } from "./public-evm-ledger.mjs";
 
+/** Owner law for one bounded EVM exchange-history read. The circulation index
+ * and private RPC membrane use this same 4,096-block ceiling. */
+export const MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS = 4096n;
+
 export const SEMIOTIC_EXCHANGE_EVENTS_ABI = [
   "event CellSeated(bytes32 indexed cell,address indexed controller,bytes32 indexed law,bytes carrier)",
   "event CellRetired(bytes32 indexed cell,address indexed controller)",
@@ -32,6 +36,13 @@ function blockNumber(value, name) {
   const number = typeof value === "bigint" ? value : BigInt(value);
   if (number < 0n) throw new RangeError(`${name} must not be negative`);
   return number;
+}
+
+function admitReadInterval(first,last) {
+  if (last < first) throw new RangeError("toBlock precedes fromBlock");
+  if (last - first + 1n > MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS) {
+    throw new RangeError("SemioticExchange eth_getLogs interval exceeds 4096 blocks");
+  }
 }
 
 /** Normalize a byte carrier without interpreting its RMN term. */
@@ -67,7 +78,7 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
   const address = getAddress(exchange);
   const first = blockNumber(fromBlock, "fromBlock");
   const last = blockNumber(toBlock, "toBlock");
-  if (last < first) throw new RangeError("toBlock precedes fromBlock");
+  admitReadInterval(first,last);
   const call = rpc ?? jsonRpc;
   const logs = await call(rpcUrl, "eth_getLogs", [{
     address,
@@ -169,7 +180,7 @@ export async function readSemioticExchangeEvents({ rpcUrl, exchange, fromBlock, 
   const address = getAddress(exchange);
   const first = blockNumber(fromBlock, "fromBlock");
   const last = blockNumber(toBlock, "toBlock");
-  if (last < first) throw new RangeError("toBlock precedes fromBlock");
+  admitReadInterval(first,last);
   const call = rpc ?? jsonRpc;
   const logs = await call(rpcUrl, "eth_getLogs", [{
     address,

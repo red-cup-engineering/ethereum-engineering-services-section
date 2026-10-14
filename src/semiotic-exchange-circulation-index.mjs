@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import { getAddress } from "ethers";
 
-import { readSemioticExchangeEvents } from "./semiotic-exchange-events.mjs";
+import { readSemioticExchangeEvents, MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS } from "./semiotic-exchange-events.mjs";
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { writeFileTextSync } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
@@ -63,7 +63,7 @@ export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRC
   if (typeof readEvents !== "function" || typeof getBlock !== "function" || typeof getContractState !== "function") throw new TypeError("readEvents, getBlock, and getContractState are required functions");
   const contracts = addresses(exchange, companions), rollback = number(rollbackBlocks, "rollbackBlocks");
   const window = number(blockWindow, "blockWindow");
-  if (window < 1n || window > 4096n) throw new RangeError("exchange blockWindow must be an integer from 1 to 4096");
+  if (window < 1n || window > MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS) throw new RangeError("exchange blockWindow must be an integer from 1 to 4096");
   const checkpointKey = "circulation/checkpoint", eventPrefix = "circulation/event/", carrierPrefix = "circulation/carrier/";
 
   async function reconcile({ rpcUrl, rpc, finalized } = {}) {
