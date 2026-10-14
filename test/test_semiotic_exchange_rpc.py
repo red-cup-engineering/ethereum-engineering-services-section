@@ -19,12 +19,14 @@ class AdmissionTest(unittest.TestCase):
         self.assertEqual(module.CHAIN_RPC, "http://10.128.0.2:8563")
         self.assertEqual(module.EXCHANGE, "0xc4234dc42c9d93bc7d61b0354aba2729ae52e322")
         self.assertEqual(module.DEPLOYMENT_BLOCK, 70)
+        self.assertEqual(module.MAX_BLOCK_WINDOW, 4096)
         self.assertEqual(module.EVENT_TOPICS, module.CONFIG["eventTopics"])
 
     def test_refuses_invalid_authored_bindings(self):
         for changes in [
             {"chainId": "5615611"}, {"exchange": "not-an-address"},
             {"deploymentBlock": True}, {"deploymentBlock": -1},
+            {"maxBlockWindow": True}, {"maxBlockWindow": 0}, {"maxBlockWindow": 4097},
             {"eventTopics": []}, {"eventTopics": ["0x00"]},
             {"chainRpc": "file:///unrelated"},
             {"membrane": {"host": "0.0.0.0", "port": 8562, "path": "/v1/semiotic-exchange/rpc"}},
@@ -67,6 +69,13 @@ class AdmissionTest(unittest.TestCase):
             "topics": [module.EVENT_TOPICS],
         }]}
         self.assertEqual(module.admit_rpc(exact), exact)
+        maximum = {**exact, "params": [{**exact["params"][0],
+            "toBlock": hex(module.DEPLOYMENT_BLOCK + module.MAX_BLOCK_WINDOW - 1)}]}
+        self.assertEqual(module.admit_rpc(maximum), maximum)
+        unbounded = {**exact, "params": [{**exact["params"][0],
+            "toBlock": hex(module.DEPLOYMENT_BLOCK + module.MAX_BLOCK_WINDOW)}]}
+        with self.assertRaisesRegex(ValueError, "block-window bound"):
+            module.admit_rpc(unbounded)
         for foreign in [
             {**exact, "method": "admin_peers"},
             {**exact, "params": [{**exact["params"][0], "address": "0x" + "00" * 20}]},
