@@ -93,8 +93,7 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
       carrierHex: hexlify(carrier),
     });
   });
-  admitted.sort(chainOrder);
-  return Object.freeze(admitted);
+  return receiveChronological(admitted);
 }
 
 function position(log) {
@@ -112,6 +111,21 @@ function chainOrder(left, right) {
   return left.chainPosition.blockNumber < right.chainPosition.blockNumber ? -1 :
     left.chainPosition.blockNumber > right.chainPosition.blockNumber ? 1 :
     left.chainPosition.logIndex - right.chainPosition.logIndex;
+}
+function receiveChronological(readings) {
+  readings.sort(chainOrder);
+  for (let index = 1; index < readings.length; index++) {
+    const previous = readings[index - 1].chainPosition;
+    const current = readings[index].chainPosition;
+    // A logIndex is unique within its block. Duplicate RPC responses must
+    // not cause repeated hire invocation, double work or duplicate ledger
+    // entries merely because the same event was returned twice.
+    if (current.blockNumber === previous.blockNumber &&
+        current.logIndex === previous.logIndex) {
+      throw new TypeError("exchange RPC returned a duplicate chain log coordinate");
+    }
+  }
+  return Object.freeze(readings);
 }
 
 // A provider's eth_getLogs filter is a request, not independent assurance
@@ -178,8 +192,7 @@ export async function readSemioticExchangeEvents({ rpcUrl, exchange, fromBlock, 
     }
     return assertCarrierIdentity(event);
   });
-  witnessed.sort(chainOrder);
-  return Object.freeze(witnessed);
+  return receiveChronological(witnessed);
 }
 
 /** A content-only receipt of one witnessed move, suitable for receiptRmn. */
