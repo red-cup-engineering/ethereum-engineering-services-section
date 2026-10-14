@@ -1,4 +1,4 @@
-import { Interface, getAddress, getBytes, hexlify, sha256, toBeHex } from "ethers";
+import { Interface, getAddress, getBytes, hexlify, isHexString, sha256, toBeHex } from "ethers";
 import { jsonRpc } from "./public-evm-ledger.mjs";
 
 export const SEMIOTIC_EXCHANGE_EVENTS_ABI = [
@@ -84,7 +84,7 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
     // rather than trusting a bare event topic from an RPC response.
     return assertCarrierIdentity({
       kind: "DemandRaised",
-      chainPosition: position(log),
+      chainPosition: receiveLogPosition(log, address, first, last),
       demand: decoded.args.demand,
       raiser: decoded.args.raiser,
       wantedLaw: decoded.args.wantedLaw,
@@ -112,6 +112,22 @@ function chainOrder(left, right) {
   return left.chainPosition.blockNumber < right.chainPosition.blockNumber ? -1 :
     left.chainPosition.blockNumber > right.chainPosition.blockNumber ? 1 :
     left.chainPosition.logIndex - right.chainPosition.logIndex;
+}
+
+// A provider's eth_getLogs filter is a request, not independent assurance
+// that the returned data belong to the queried contract and block interval.
+// Authenticate every supplied event coordinate before handing it to A2A
+// execution or the circulation index.
+function receiveLogPosition(log, contract, first, last) {
+  const positionValue = position(log);
+  if (getAddress(log?.address) !== contract ||
+      log.removed === true ||
+      positionValue.blockNumber < first || positionValue.blockNumber > last ||
+      !isHexString(positionValue.blockHash, 32) ||
+      !isHexString(positionValue.transactionHash, 32)) {
+    throw new TypeError("exchange RPC returned a log outside its admitted contract or finalized interval");
+  }
+  return positionValue;
 }
 
 function optionalCarrier(decoded) {
@@ -149,7 +165,7 @@ export async function readSemioticExchangeEvents({ rpcUrl, exchange, fromBlock, 
   }]);
   const witnessed = logs.map((log) => {
     const decoded = events.parseLog(log);
-    const common = { kind: decoded.name, chainPosition: position(log), ...optionalCarrier(decoded) };
+    const common = { kind: decoded.name, chainPosition: receiveLogPosition(log, address, first, last), ...optionalCarrier(decoded) };
     let event;
     switch (decoded.name) {
       case "CellSeated": event = { ...common, cell: decoded.args.cell, controller: decoded.args.controller, law: decoded.args.law }; break;
