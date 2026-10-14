@@ -10,6 +10,7 @@ import { semanticId } from "@red-cup-engineering/computer-content-address-engine
 
 export const CIRCULATION_CHAIN = "eip155:5615611";
 export const V1_BACKFILL_BLOCK = 70n;
+export const DEFAULT_EXCHANGE_BLOCK_WINDOW = 1024n;
 
 const number = (value, label) => { const result = BigInt(value); if (result < 0n) throw new TypeError(`${label} must be nonnegative`); return result; };
 const hash = (value, label) => { if (typeof value !== "string" || !/^0x[0-9a-fA-F]{64}$/u.test(value)) throw new TypeError(`${label} must be a block or transaction hash`); return value.toLowerCase(); };
@@ -48,11 +49,13 @@ function carrier(event) {
   return Object.freeze({ id: event.carrierNi, hex: `0x${Buffer.from(event.carrier).toString("hex")}` });
 }
 
-export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRCULATION_CHAIN, exchange, companions = [], readEvents = readSemioticExchangeEvents, getBlock, getContractState = async () => null, rollbackBlocks = 32n } = {}) {
+export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRCULATION_CHAIN, exchange, companions = [], readEvents = readSemioticExchangeEvents, getBlock, getContractState = async () => null, rollbackBlocks = 32n, blockWindow = DEFAULT_EXCHANGE_BLOCK_WINDOW } = {}) {
   if (chainId !== CIRCULATION_CHAIN) throw new TypeError(`circulation index requires ${CIRCULATION_CHAIN}`);
   storage = storageContract(storage);
   if (typeof readEvents !== "function" || typeof getBlock !== "function" || typeof getContractState !== "function") throw new TypeError("readEvents, getBlock, and getContractState are required functions");
   const contracts = addresses(exchange, companions), rollback = number(rollbackBlocks, "rollbackBlocks");
+  const window = number(blockWindow, "blockWindow");
+  if (window < 1n || window > 4096n) throw new RangeError("exchange blockWindow must be an integer from 1 to 4096");
   const checkpointKey = "circulation/checkpoint", eventPrefix = "circulation/event/", carrierPrefix = "circulation/carrier/";
 
   async function reconcile({ rpcUrl, rpc, finalized } = {}) {
@@ -107,13 +110,22 @@ export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRC
         ? (replayFrom ?? number(prior.finalized.number, "prior finalized block") + 1n)
         : contract.deploymentBlock;
       if (start > head.number) continue;
-      for (const event of await readEvents({ rpcUrl, rpc, exchange: contract.address, fromBlock: start, toBlock: head.number })) {
-        const eventKey = `${eventPrefix}${key(contract.address, event)}`, existing = await storage.get(eventKey);
-        if (existing) { indexed.push(existing); continue; }
-        const verifiedCarrier = carrier(event);
-        if (verifiedCarrier && !await storage.get(`${carrierPrefix}${verifiedCarrier.id}`)) await storage.put(`${carrierPrefix}${verifiedCarrier.id}`, verifiedCarrier);
-        const row = Object.freeze({ key: eventKey, chain: chainId, address: contract.address, version: contract.version, blockNumber: event.chainPosition.blockNumber.toString(), event: portable(event), carrier: verifiedCarrier });
-        await storage.put(eventKey, row); indexed.push(row);
+      // Each RPC read covers a bounded closed interval. Historical backfill
+      // and chain recovery may span years of blocks, but one provider call
+      // must never request the whole head-from-genesis range.
+      for (let first = start; first <= head.number; first += window) {
+        const last = first + window - 1n > head.number ? head.number : first + window - 1n;
+        const events = await readEvents({ rpcUrl, rpc, exchange: contract.address, fromBlock: first, toBlock: last });
+        for (const event of events) {
+          const position = number(event?.chainPosition?.blockNumber, "event block number");
+          if (position < first || position > last) throw new TypeError("exchange reader returned an event outside its requested window");
+          const eventKey = `${eventPrefix}${key(contract.address, event)}`, existing = await storage.get(eventKey);
+          if (existing) { indexed.push(existing); continue; }
+          const verifiedCarrier = carrier(event);
+          if (verifiedCarrier && !await storage.get(`${carrierPrefix}${verifiedCarrier.id}`)) await storage.put(`${carrierPrefix}${verifiedCarrier.id}`, verifiedCarrier);
+          const row = Object.freeze({ key: eventKey, chain: chainId, address: contract.address, version: contract.version, blockNumber: position.toString(), event: portable(event), carrier: verifiedCarrier });
+          await storage.put(eventKey, row); indexed.push(row);
+        }
       }
     }
     const state = await getContractState({ exchange: contracts[0].address, companions: contracts.slice(1), finalized: head });
