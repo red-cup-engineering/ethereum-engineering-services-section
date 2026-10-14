@@ -12,6 +12,19 @@ function memory() { const rows = new Map(); return { async get(key) { return row
 function event(block, blockHash = h("a"), carrier = new Uint8Array([1, 2])) { const digest = sha256(carrier).slice(2); return { kind: "DemandRaised", chainPosition: { blockNumber: BigInt(block), blockHash, transactionHash: h("b"), logIndex: 0 }, carrier, carrierNi: `ni:///sha-256;${Buffer.from(digest, "hex").toString("base64url")}` }; }
 function index(storage, rows, blocks) { return createSemioticExchangeCirculationIndex({ storage, exchange, readEvents: async ({ fromBlock, toBlock }) => rows.filter(({ chainPosition }) => chainPosition.blockNumber >= fromBlock && chainPosition.blockNumber <= toBlock), getBlock: async (at) => ({ hash: blocks.get(BigInt(at)) }), getContractState: async () => ({ demandCount: "0" }) }); }
 
+test("one deployed exchange address is one witness source even through case variants or companion aliases", () => {
+  const second = "0x1111111111111111111111111111111111111111";
+  const inputs = [
+    [{ address: exchange.toLowerCase(), deploymentBlock: 90n, version: 1 }],
+    [{ address: second, deploymentBlock: 90n }, { address: second.toUpperCase().replace(/^0X/, "0x"), deploymentBlock: 95n }],
+  ];
+  for (const companions of inputs) {
+    assert.throws(() => createSemioticExchangeCirculationIndex({
+      storage: memory(), exchange, companions, getBlock: async () => ({ hash: h("a") }),
+    }), /duplicate semiotic exchange contract source/u);
+  }
+});
+
 test("restart is idempotent and v1 begins at block 70", async () => {
   const storage = memory(), rows = [event(70)], blocks = new Map([[70n, h("a")]]), subject = index(storage, rows, blocks);
   const first = await subject.reconcile({ finalized: { number: 70, hash: h("a") } });
