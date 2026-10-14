@@ -32,6 +32,37 @@ test("restart is idempotent and v1 begins at block 70", async () => {
   assert.equal(first.indexed.length, 1); assert.equal(second.indexed.length, 0); assert.equal(second.signature, null);
 });
 
+test("unverified supplied finalized block hash cannot write any exchange event or cursor", async () => {
+  const storage = memory();
+  const blocks = new Map([[70n, h("a")]]);
+  let eventReads = 0;
+  const indexer = createSemioticExchangeCirculationIndex({
+    storage, exchange, getBlock: async number => ({ hash: blocks.get(BigInt(number)) }),
+    readEvents: async () => { eventReads++; return [event(70)]; },
+  });
+  await assert.rejects(
+    indexer.reconcile({ finalized: { number: 70n, hash: h("f") } }),
+    /head hash differs from observed block/u,
+  );
+  assert.equal(eventReads, 0, "no side effects after an unreceived chain claim");
+  assert.deepEqual(await storage.list("circulation/event/"), []);
+  assert.equal(await storage.get("circulation/checkpoint"), null);
+});
+
+test("stale finalized head refuses without deleting paid history or moving its cursor backwards", async () => {
+  const storage = memory(), blocks = new Map([[70n, h("a")], [71n, h("b")]]);
+  const indexer = index(storage, [event(70), event(71, h("b"))], blocks);
+  await indexer.reconcile({ finalized: { number: 71n, hash: h("b") } });
+  const checkpoint = await storage.get("circulation/checkpoint");
+  const before = await storage.list("circulation/event/");
+  await assert.rejects(
+    indexer.reconcile({ finalized: { number: 70n, hash: h("a") } }),
+    /finalized head regressed/u,
+  );
+  assert.deepEqual(await storage.get("circulation/checkpoint"), checkpoint);
+  assert.deepEqual(await storage.list("circulation/event/"), before);
+});
+
 test("checkpoint hash mismatch rolls back a bounded suffix and replays canonical logs", async () => {
   const storage = memory(), blocks = new Map([[70n, h("a")], [71n, h("c")]]), rows = [event(70), event(71, h("c"))], subject = index(storage, rows, blocks);
   await subject.reconcile({ finalized: { number: 70, hash: h("a") } });
@@ -42,7 +73,7 @@ test("checkpoint hash mismatch rolls back a bounded suffix and replays canonical
 
 test("reorg cleanup uses integer block ordering across 99 to 100, never deleting earlier paid witness history", async () => {
   const storage = memory();
-  const blocks = new Map([[132n, h("a")]]);
+  const blocks = new Map([[132n, h("a")], [133n, h("c")]]);
   const old = event(99, h("1")), oldFork = event(125, h("2"));
   const rows = [old, oldFork];
   const subject = index(storage, rows, blocks);
@@ -64,7 +95,7 @@ test("reorg cleanup uses integer block ordering across 99 to 100, never deleting
 });
 
 test("malformed persisted block coordinates refuse reorg instead of silently losing evidence", async () => {
-  const storage = memory(), blocks = new Map([[132n,h("a")]]);
+  const storage = memory(), blocks = new Map([[132n,h("a")],[133n,h("c")]]);
   const subject = index(storage, [event(125,h("2"))], blocks);
   await subject.reconcile({ finalized: { number: 132n, hash: h("a") } });
   const [key] = await storage.list("circulation/event/");
@@ -81,7 +112,7 @@ test("new exchange companion backfills from its own deployment block after prima
     (contract.toLowerCase() === second.toLowerCase() ? [addedEvent] : [primaryEvent])
       .filter(row => row.chainPosition.blockNumber >= fromBlock && row.chainPosition.blockNumber <= toBlock);
   const common = {
-    storage, exchange, readEvents, getBlock: async () => ({ hash: h("a") }),
+    storage, exchange, readEvents, getBlock: async at => ({ hash: BigInt(at) === 120n ? h("b") : h("a") }),
     getContractState: async () => ({ demandCount: "2" }),
   };
   const original = createSemioticExchangeCirculationIndex(common);
