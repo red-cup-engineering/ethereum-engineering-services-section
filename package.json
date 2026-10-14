@@ -19,7 +19,9 @@
     "foundry.toml",
     "test/BeefyLegacyRecoveryFork.t.sol",
     "test/TypedCommitmentProjection.t.sol",
-    "test/fixtures/guile-typed-commitment.mjs"
+    "test/fixtures/guile-typed-commitment.mjs",
+    "data/records/articulating-compilation.json",
+    "dist/articulating"
   ],
   "exports": {
     "./settlement-key-custody": "./src/settlement-key-custody.mjs",
@@ -79,7 +81,8 @@
     "viem": "2.55.4",
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/semantic-content-identify-service": "workspace:*"
+    "@red-cup-engineering/semantic-content-identify-service": "workspace:*",
+    "@red-cup-engineering/solidity-services-section": "workspace:*"
   },
   "scripts": {
     "validate:glass-sponge-deployment-plan": "node scripts/validate-glass-sponge-deployment-plan.mjs",
@@ -115,5 +118,15 @@
     "@foundry-rs/cast": "1.7.1",
     "@red-cup-engineering/computer-deployment-engine": "workspace:*",
     "@lenticule-science/witness-journal-rdf-projection-service": "workspace:*"
+  },
+  "nodeRuntimeGeneration": {
+    "module": "scripts/generate-articulating-artifacts.mjs",
+    "export": "generateArticulatingArtifacts",
+    "outputs": [
+      "dist/articulating/ArticulationCell.json",
+      "dist/articulating/Articulating.json",
+      "dist/articulating/Mark.json",
+      "dist/articulating/Utterance.json"
+    ]
   }
 }
