@@ -186,4 +186,3 @@ test("semantic-gate binding replacement refuses in the actual executor before an
   }
   assert.equal(networkCalls, 0);
 });
-

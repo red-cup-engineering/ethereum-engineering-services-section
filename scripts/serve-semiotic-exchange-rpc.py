@@ -131,4 +131,3 @@ if __name__ == "__main__":
         raise SystemExit("the membrane binds only the cloud machine private address 10.128.0.2:8562")
     verify_chain()
     ThreadingHTTPServer((host, port), Handler).serve_forever()
-

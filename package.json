@@ -81,7 +81,9 @@
     "ethers": "6.17.0",
     "viem": "2.55.4",
     "@red-cup-engineering/signcell": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/semantic-content-identify-service": "workspace:*",
+    "@red-cup-engineering/solidity-services-section": "workspace:*"
   },
   "scripts": {
     "validate:glass-sponge-deployment-plan": "node scripts/validate-glass-sponge-deployment-plan.mjs",
