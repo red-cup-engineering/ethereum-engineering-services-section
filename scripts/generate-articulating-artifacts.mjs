@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { parseArgs } from "node:util";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import solc from "solc";
@@ -61,4 +63,21 @@ export async function generateArticulatingArtifacts({ sourceRoot, ownerRoot, rea
       return { path: contract.output, text: `${JSON.stringify(artifact, null, 2)}\n` };
     }),
   };
+}
+
+// Ordinary package build entrance; compilation writes only its declared products.
+if (import.meta.main) {
+  const { values } = parseArgs({ options: { "source-root": { type: "string" } } });
+  if (!values["source-root"]) throw new TypeError("--source-root is required");
+  const sourceRoot = resolve(values["source-root"]);
+  const owner = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const { files } = await generateArticulatingArtifacts({
+    sourceRoot, read: file => readFile(resolve(sourceRoot, file), "utf8"),
+  });
+  for (const file of files) {
+    const output = resolve(owner, file.path);
+    await mkdir(dirname(output), { recursive: true });
+    await writeFile(output, file.text);
+  }
+  process.stdout.write(JSON.stringify({ built: files.map(file => file.path) }) + "\n");
 }
