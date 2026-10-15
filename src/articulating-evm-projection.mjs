@@ -33,7 +33,7 @@ const artifacts = Object.freeze({
 
 function artifactBytecode(artifact) {
   const bytecode = artifact?.bytecode?.object;
-  if (!/^0x[0-9a-f]+$/iu.test(bytecode ?? "")) throw new Error("canonical compiler artifact has no creation bytecode");
+  if (!/^0x[0-9a-f]+$/iu.test(bytecode ?? "")) throw new Error("canonical compiled artifact has no creation bytecode");
   return bytecode;
 }
 
@@ -70,8 +70,10 @@ function stackMember(key, constructorArguments, deployer) {
  * Compile one canonical articulating request into its EVM state-transition die.
  *
  * This is a projection, not another semantic implementation. The request decoder
- * recovers the operation and values; the source-owned compiler artifacts supply the
- * ABI and bytecode. Callers must resolve the declared reads at one witnessed
+ * recovers the operation and values; declared source compilation generates the
+ * ABI and bytecode before the runtime package is packed. The historical committed
+ * Forge outputs remain evidence and are not substituted for those generated products.
+ * Callers must resolve the declared reads at one witnessed
  * block and retain only presently lawful writes before submitting the calls
  * through EnterpriseAccount.executeSen.
  */

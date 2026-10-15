@@ -22,6 +22,8 @@ def load_configuration(path=CONFIG_PATH):
         raise ValueError("reader exchange must be an EVM address")
     if type(value.get("deploymentBlock")) is not int or value["deploymentBlock"] < 0:
         raise ValueError("reader deploymentBlock must be a nonnegative integer")
+    if type(value.get("maxBlockWindow")) is not int or not 1 <= value["maxBlockWindow"] <= 4096:
+        raise ValueError("reader maxBlockWindow must be an integer between 1 and 4096")
     topics = value.get("eventTopics")
     if not isinstance(topics, list) or not topics or any(not isinstance(topic, str) or not re.fullmatch(r"0x[0-9a-fA-F]{64}", topic) for topic in topics):
         raise ValueError("reader eventTopics must be nonempty bytes32 topics")
@@ -38,6 +40,7 @@ CHAIN_RPC = CONFIG["chainRpc"]
 CHAIN_ID = int(CONFIG["chainId"].split(":")[1])
 EXCHANGE = CONFIG["exchange"].lower()
 DEPLOYMENT_BLOCK = CONFIG["deploymentBlock"]
+MAX_BLOCK_WINDOW = CONFIG["maxBlockWindow"]
 EVENT_TOPICS = CONFIG["eventTopics"]
 HEX_BLOCK = re.compile(r"^0x(?:0|[1-9a-f][0-9a-f]*)$")
 
@@ -70,8 +73,11 @@ def admit_rpc(value):
     first, last = query["fromBlock"], query["toBlock"]
     if not isinstance(first, str) or not isinstance(last, str) or not HEX_BLOCK.fullmatch(first) or not HEX_BLOCK.fullmatch(last):
         raise ValueError("closed hexadecimal block interval required")
-    if int(first, 16) < DEPLOYMENT_BLOCK or int(last, 16) < int(first, 16):
+    first_block, last_block = int(first, 16), int(last, 16)
+    if first_block < DEPLOYMENT_BLOCK or last_block < first_block:
         raise ValueError("log interval is outside the deployed SemioticExchange history")
+    if last_block - first_block + 1 > MAX_BLOCK_WINDOW:
+        raise ValueError("SemioticExchange log interval exceeds the existing circulation block-window bound")
     return value
 
 

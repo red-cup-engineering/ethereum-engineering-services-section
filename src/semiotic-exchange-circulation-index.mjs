@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import { getAddress } from "ethers";
 
-import { readSemioticExchangeEvents } from "./semiotic-exchange-events.mjs";
+import { readSemioticExchangeEvents, MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS } from "./semiotic-exchange-events.mjs";
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { writeFileTextSync } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
@@ -10,6 +10,7 @@ import { semanticId } from "@red-cup-engineering/computer-content-address-engine
 
 export const CIRCULATION_CHAIN = "eip155:5615611";
 export const V1_BACKFILL_BLOCK = 70n;
+export const DEFAULT_EXCHANGE_BLOCK_WINDOW = 1024n;
 
 const number = (value, label) => { const result = BigInt(value); if (result < 0n) throw new TypeError(`${label} must be nonnegative`); return result; };
 const hash = (value, label) => { if (typeof value !== "string" || !/^0x[0-9a-fA-F]{64}$/u.test(value)) throw new TypeError(`${label} must be a block or transaction hash`); return value.toLowerCase(); };
@@ -38,7 +39,15 @@ function storageContract(storage) {
 function addresses(exchange, companions) {
   const primary = Object.freeze({ address: getAddress(exchange), deploymentBlock: V1_BACKFILL_BLOCK, version: 1 });
   if (!Array.isArray(companions)) throw new TypeError("companions must be an array");
-  const extra = companions.map((entry, index) => Object.freeze({ address: getAddress(entry?.address), deploymentBlock: number(entry?.deploymentBlock, `companions[${index}].deploymentBlock`), version: entry?.version ?? 1 }));
+  // A contract is one witness source. Duplicate/case-aliased companions must
+  // not count the same chain logs twice or manufacture multiple producers.
+  const seen = new Set([primary.address.toLowerCase()]);
+  const extra = companions.map((entry, index) => {
+    const address = getAddress(entry?.address), key = address.toLowerCase();
+    if (seen.has(key)) throw new TypeError("duplicate semiotic exchange contract source");
+    seen.add(key);
+    return Object.freeze({ address, deploymentBlock: number(entry?.deploymentBlock, `companions[${index}].deploymentBlock`), version: entry?.version ?? 1 });
+  });
   return Object.freeze([primary, ...extra]);
 }
 
@@ -48,36 +57,94 @@ function carrier(event) {
   return Object.freeze({ id: event.carrierNi, hex: `0x${Buffer.from(event.carrier).toString("hex")}` });
 }
 
-export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRCULATION_CHAIN, exchange, companions = [], readEvents = readSemioticExchangeEvents, getBlock, getContractState = async () => null, rollbackBlocks = 32n } = {}) {
+export function createSemioticExchangeCirculationIndex({ storage, chainId = CIRCULATION_CHAIN, exchange, companions = [], readEvents = readSemioticExchangeEvents, getBlock, getContractState = async () => null, rollbackBlocks = 32n, blockWindow = DEFAULT_EXCHANGE_BLOCK_WINDOW } = {}) {
   if (chainId !== CIRCULATION_CHAIN) throw new TypeError(`circulation index requires ${CIRCULATION_CHAIN}`);
   storage = storageContract(storage);
   if (typeof readEvents !== "function" || typeof getBlock !== "function" || typeof getContractState !== "function") throw new TypeError("readEvents, getBlock, and getContractState are required functions");
   const contracts = addresses(exchange, companions), rollback = number(rollbackBlocks, "rollbackBlocks");
+  const window = number(blockWindow, "blockWindow");
+  if (window < 1n || window > MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS) throw new RangeError("exchange blockWindow must be an integer from 1 to 4096");
   const checkpointKey = "circulation/checkpoint", eventPrefix = "circulation/event/", carrierPrefix = "circulation/carrier/";
 
   async function reconcile({ rpcUrl, rpc, finalized } = {}) {
     const head = Object.freeze({ number: number(finalized?.number, "finalized.number"), hash: hash(finalized?.hash, "finalized.hash") });
     const prior = await storage.get(checkpointKey);
+    // A checkpoint describes which exchange contracts its cursor covered.
+    // A newly installed companion needs its own backfill from deployment,
+    // even when the primary's finalized cursor has already advanced.
+    // Retiring or renaming an indexed contract without a migration would
+    // strand its immutable historical events under the old schema.
+    const previousContracts = new Map();
+    if (prior) {
+      if (prior.chain !== chainId || !Array.isArray(prior.contracts)) {
+        throw new TypeError("exchange checkpoint chain and contract sources must be received");
+      }
+      for (const previous of prior.contracts) {
+        const address = getAddress(previous.address).toLowerCase();
+        if (previousContracts.has(address)) throw new TypeError("duplicate prior exchange contract");
+        previousContracts.set(address, previous);
+        if (!contracts.some(current =>
+            current.address.toLowerCase() === address &&
+            current.deploymentBlock === number(previous.deploymentBlock, "prior deploymentBlock") &&
+            current.version === previous.version)) {
+          throw new TypeError("previously indexed exchange contract cannot disappear or change without migration");
+        }
+      }
+    }
+    // A supplied "finalized" coordinate is testimony, not evidence that
+    // a currently reachable chain bears that hash. Receive it through the
+    // existing injected block reader BEFORE deleting reorg records or storing
+    // any new event. Finality never silently travels backward on a restart.
+    if (prior && head.number < number(prior.finalized.number, "prior finalized block")) {
+      throw new RangeError("semiotic exchange finalized head regressed below its durable checkpoint");
+    }
+    const headOnChain = await getBlock(head.number);
+    if (hash(headOnChain?.hash, "observed finalized head hash") !== head.hash) {
+      throw new TypeError("semiotic exchange finalized head hash differs from observed block");
+    }
     let replayFrom = null, reorg = false;
     if (prior) {
       const observed = await getBlock(prior.finalized.number);
       if (hash(observed?.hash, "checkpoint block hash") !== prior.finalized.hash) {
         const priorNumber = number(prior.finalized.number, "checkpoint finalized number");
         reorg = true; replayFrom = priorNumber > rollback ? (priorNumber - rollback > V1_BACKFILL_BLOCK ? priorNumber - rollback : V1_BACKFILL_BLOCK) : V1_BACKFILL_BLOCK;
-        for (const name of await storage.list(eventPrefix)) { const row = await storage.get(name); if (row?.blockNumber >= replayFrom.toString()) await storage.remove(name); }
+        for (const name of await storage.list(eventPrefix)) {
+          const row = await storage.get(name);
+          if (row === null) continue;
+          // Persisted block numbers are decimal strings. Lexical ordering
+          // deletes pre-reorganization rows across decimal-width boundaries
+          // (e.g. "99" >= "100") and silently loses their witnesses.
+          if (typeof row.blockNumber !== "string" ||
+              !/^(?:0|[1-9][0-9]*)$/u.test(row.blockNumber)) {
+            throw new TypeError("indexed event block number must be canonical decimal");
+          }
+          if (BigInt(row.blockNumber) >= replayFrom) await storage.remove(name);
+        }
       }
     }
     const indexed = [];
     for (const contract of contracts) {
-      const start = replayFrom ?? (prior ? BigInt(prior.finalized.number) + 1n : contract.deploymentBlock);
+      const previouslyIndexed = previousContracts.has(contract.address.toLowerCase());
+      const start = previouslyIndexed
+        ? (replayFrom ?? number(prior.finalized.number, "prior finalized block") + 1n)
+        : contract.deploymentBlock;
       if (start > head.number) continue;
-      for (const event of await readEvents({ rpcUrl, rpc, exchange: contract.address, fromBlock: start, toBlock: head.number })) {
-        const eventKey = `${eventPrefix}${key(contract.address, event)}`, existing = await storage.get(eventKey);
-        if (existing) { indexed.push(existing); continue; }
-        const verifiedCarrier = carrier(event);
-        if (verifiedCarrier && !await storage.get(`${carrierPrefix}${verifiedCarrier.id}`)) await storage.put(`${carrierPrefix}${verifiedCarrier.id}`, verifiedCarrier);
-        const row = Object.freeze({ key: eventKey, chain: chainId, address: contract.address, version: contract.version, blockNumber: event.chainPosition.blockNumber.toString(), event: portable(event), carrier: verifiedCarrier });
-        await storage.put(eventKey, row); indexed.push(row);
+      // Each RPC read covers a bounded closed interval. Historical backfill
+      // and chain recovery may span years of blocks, but one provider call
+      // must never request the whole head-from-genesis range.
+      for (let first = start; first <= head.number; first += window) {
+        const last = first + window - 1n > head.number ? head.number : first + window - 1n;
+        const events = await readEvents({ rpcUrl, rpc, exchange: contract.address, fromBlock: first, toBlock: last });
+        for (const event of events) {
+          const position = number(event?.chainPosition?.blockNumber, "event block number");
+          if (position < first || position > last) throw new TypeError("exchange reader returned an event outside its requested window");
+          const eventKey = `${eventPrefix}${key(contract.address, event)}`, existing = await storage.get(eventKey);
+          if (existing) { indexed.push(existing); continue; }
+          const verifiedCarrier = carrier(event);
+          if (verifiedCarrier && !await storage.get(`${carrierPrefix}${verifiedCarrier.id}`)) await storage.put(`${carrierPrefix}${verifiedCarrier.id}`, verifiedCarrier);
+          const row = Object.freeze({ key: eventKey, chain: chainId, address: contract.address, version: contract.version, blockNumber: position.toString(), event: portable(event), carrier: verifiedCarrier });
+          await storage.put(eventKey, row); indexed.push(row);
+        }
       }
     }
     const state = await getContractState({ exchange: contracts[0].address, companions: contracts.slice(1), finalized: head });

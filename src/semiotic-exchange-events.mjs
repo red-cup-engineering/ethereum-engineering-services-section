@@ -1,5 +1,9 @@
-import { Interface, getAddress, getBytes, hexlify, sha256, toBeHex } from "ethers";
+import { Interface, getAddress, getBytes, hexlify, isHexString, sha256, toBeHex } from "ethers";
 import { jsonRpc } from "./public-evm-ledger.mjs";
+
+/** Owner law for one bounded EVM exchange-history read. The circulation index
+ * and private RPC membrane use this same 4,096-block ceiling. */
+export const MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS = 4096n;
 
 export const SEMIOTIC_EXCHANGE_EVENTS_ABI = [
   "event CellSeated(bytes32 indexed cell,address indexed controller,bytes32 indexed law,bytes carrier)",
@@ -32,6 +36,13 @@ function blockNumber(value, name) {
   const number = typeof value === "bigint" ? value : BigInt(value);
   if (number < 0n) throw new RangeError(`${name} must not be negative`);
   return number;
+}
+
+function admitReadInterval(first,last) {
+  if (last < first) throw new RangeError("toBlock precedes fromBlock");
+  if (last - first + 1n > MAX_SEMIOTIC_EXCHANGE_READ_BLOCKS) {
+    throw new RangeError("SemioticExchange eth_getLogs interval exceeds 4096 blocks");
+  }
 }
 
 /** Normalize a byte carrier without interpreting its RMN term. */
@@ -67,7 +78,7 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
   const address = getAddress(exchange);
   const first = blockNumber(fromBlock, "fromBlock");
   const last = blockNumber(toBlock, "toBlock");
-  if (last < first) throw new RangeError("toBlock precedes fromBlock");
+  admitReadInterval(first,last);
   const call = rpc ?? jsonRpc;
   const logs = await call(rpcUrl, "eth_getLogs", [{
     address,
@@ -76,16 +87,15 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
     topics: [demandRaised.topicHash],
   }]);
 
-  return logs.map((log) => {
+  const admitted = logs.map((log) => {
     const decoded = events.parseLog(log);
     const carrier = getBytes(decoded.args.carrier);
-    return Object.freeze({
-      chainPosition: Object.freeze({
-        blockNumber: BigInt(log.blockNumber),
-        blockHash: log.blockHash,
-        transactionHash: log.transactionHash,
-        logIndex: Number(BigInt(log.logIndex)),
-      }),
+    // This specialized reader feeds real A2A hire submission. It must
+    // receive the same canonical SHA-256 identity as full event replay,
+    // rather than trusting a bare event topic from an RPC response.
+    return assertCarrierIdentity({
+      kind: "DemandRaised",
+      chainPosition: receiveLogPosition(log, address, first, last),
       demand: decoded.args.demand,
       raiser: decoded.args.raiser,
       wantedLaw: decoded.args.wantedLaw,
@@ -94,15 +104,55 @@ export async function readDemandRaised({ rpcUrl, exchange, fromBlock, toBlock, r
       carrierHex: hexlify(carrier),
     });
   });
+  return receiveChronological(admitted);
 }
 
 function position(log) {
+  const block = blockNumber(log.blockNumber, "log.blockNumber");
+  const index = blockNumber(log.logIndex, "log.logIndex");
+  if (index > BigInt(Number.MAX_SAFE_INTEGER)) throw new RangeError("log index exceeds safe integer range");
   return Object.freeze({
-    blockNumber: BigInt(log.blockNumber),
+    blockNumber: block,
     blockHash: log.blockHash,
     transactionHash: log.transactionHash,
-    logIndex: Number(BigInt(log.logIndex)),
+    logIndex: Number(index),
   });
+}
+function chainOrder(left, right) {
+  return left.chainPosition.blockNumber < right.chainPosition.blockNumber ? -1 :
+    left.chainPosition.blockNumber > right.chainPosition.blockNumber ? 1 :
+    left.chainPosition.logIndex - right.chainPosition.logIndex;
+}
+function receiveChronological(readings) {
+  readings.sort(chainOrder);
+  for (let index = 1; index < readings.length; index++) {
+    const previous = readings[index - 1].chainPosition;
+    const current = readings[index].chainPosition;
+    // A logIndex is unique within its block. Duplicate RPC responses must
+    // not cause repeated hire invocation, double work or duplicate ledger
+    // entries merely because the same event was returned twice.
+    if (current.blockNumber === previous.blockNumber &&
+        current.logIndex === previous.logIndex) {
+      throw new TypeError("exchange RPC returned a duplicate chain log coordinate");
+    }
+  }
+  return Object.freeze(readings);
+}
+
+// A provider's eth_getLogs filter is a request, not independent assurance
+// that the returned data belong to the queried contract and block interval.
+// Authenticate every supplied event coordinate before handing it to A2A
+// execution or the circulation index.
+function receiveLogPosition(log, contract, first, last) {
+  const positionValue = position(log);
+  if (getAddress(log?.address) !== contract ||
+      log.removed === true ||
+      positionValue.blockNumber < first || positionValue.blockNumber > last ||
+      !isHexString(positionValue.blockHash, 32) ||
+      !isHexString(positionValue.transactionHash, 32)) {
+    throw new TypeError("exchange RPC returned a log outside its admitted contract or finalized interval");
+  }
+  return positionValue;
 }
 
 function optionalCarrier(decoded) {
@@ -130,7 +180,7 @@ export async function readSemioticExchangeEvents({ rpcUrl, exchange, fromBlock, 
   const address = getAddress(exchange);
   const first = blockNumber(fromBlock, "fromBlock");
   const last = blockNumber(toBlock, "toBlock");
-  if (last < first) throw new RangeError("toBlock precedes fromBlock");
+  admitReadInterval(first,last);
   const call = rpc ?? jsonRpc;
   const logs = await call(rpcUrl, "eth_getLogs", [{
     address,
@@ -140,7 +190,7 @@ export async function readSemioticExchangeEvents({ rpcUrl, exchange, fromBlock, 
   }]);
   const witnessed = logs.map((log) => {
     const decoded = events.parseLog(log);
-    const common = { kind: decoded.name, chainPosition: position(log), ...optionalCarrier(decoded) };
+    const common = { kind: decoded.name, chainPosition: receiveLogPosition(log, address, first, last), ...optionalCarrier(decoded) };
     let event;
     switch (decoded.name) {
       case "CellSeated": event = { ...common, cell: decoded.args.cell, controller: decoded.args.controller, law: decoded.args.law }; break;
@@ -153,8 +203,7 @@ export async function readSemioticExchangeEvents({ rpcUrl, exchange, fromBlock, 
     }
     return assertCarrierIdentity(event);
   });
-  witnessed.sort((left, right) => left.chainPosition.blockNumber < right.chainPosition.blockNumber ? -1 : left.chainPosition.blockNumber > right.chainPosition.blockNumber ? 1 : left.chainPosition.logIndex - right.chainPosition.logIndex);
-  return Object.freeze(witnessed);
+  return receiveChronological(witnessed);
 }
 
 /** A content-only receipt of one witnessed move, suitable for receiptRmn. */
