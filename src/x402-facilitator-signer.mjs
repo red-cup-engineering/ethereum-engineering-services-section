@@ -76,4 +76,3 @@ export function createEnterpriseAccountFacilitatorSigner({
     getCode: ({ address }) => publicClient.getCode({ address }),
   });
 }
-
