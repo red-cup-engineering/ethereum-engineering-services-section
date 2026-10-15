@@ -6,7 +6,7 @@
 // compute: no network, no keys; ERC-1271 contract signatures are a
 // separate operation.
 import { hashPersonalMessage, recoverAddress, toChecksumAddress } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/evm";
-import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-engineering-services-section/operation";
 
 const HEADER_PATTERN = /^(?:(?<scheme>[a-zA-Z][a-zA-Z0-9+.-]*):\/\/)?(?<domain>[^\s]+) wants you to sign in with your Ethereum account:$/u;
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/u;
