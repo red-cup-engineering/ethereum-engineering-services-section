@@ -1,5 +1,5 @@
 import { keccak256 } from "ethers";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 import { recordSettlementRecord } from "@red-cup-engineering/witness-journal-document-service";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

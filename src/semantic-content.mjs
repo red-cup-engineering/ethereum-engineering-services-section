@@ -3,7 +3,7 @@ import {
   IDENTITY_SETTLEMENT_PROFILE,
   SEN_NORMALIZATION_PROFILE,
   identifyJsonSemanticContent,
-} from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+} from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 
 export function semanticIdentity(objectKind, value) {
   const identified = identifyJsonSemanticContent({ objectKind, value, witnessRoot: EMPTY_WITNESS_ROOT });
