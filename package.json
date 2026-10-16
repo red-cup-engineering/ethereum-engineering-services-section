@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/ethereum-engineering-services-section",
-  "version": "0.15.0",
+  "version": "0.15.2",
   "type": "module",
   "bin": {
     "solicit-public-wallet-observation": "scripts/solicit-public-wallet-observation.mjs",
@@ -10,7 +10,6 @@
   "description": "Ethereum/EVM standards and chain services for sovereign Union enterprise accounts, committed seams, and residue-only consensus work.",
   "files": [
     "scripts",
-    "content",
     "script",
     "src",
     "harness/fixed-fork-beefy-vault-exit/foundry.toml",
@@ -21,7 +20,9 @@
     "test/TypedCommitmentProjection.t.sol",
     "test/fixtures/guile-typed-commitment.mjs",
     "data/records/articulating-compilation.json",
-    "dist/articulating"
+    "dist/articulating",
+    "content/deployments",
+    "content/deployment-plans"
   ],
   "exports": {
     "./settlement-key-custody": "./src/settlement-key-custody.mjs",
@@ -61,28 +62,12 @@
     "@account-abstraction/contracts": "0.8.0",
     "@foundry-rs/forge": "1.7.1",
     "@openzeppelin/contracts": "5.6.1",
-    "@red-cup-engineering/activitypub-services-section": "workspace:*",
-    "@red-cup-engineering/c2pa-services-section": "workspace:*",
-    "@red-cup-engineering/cbor-services-section": "workspace:*",
-    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/computer-system-platform": "workspace:*",
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/http-services-section": "workspace:*",
-    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
-    "@red-cup-engineering/json-schema-services-section": "workspace:*",
-    "@red-cup-engineering/json-services-section": "workspace:*",
-    "@red-cup-engineering/route-directed-yield-service": "workspace:*",
-    "@red-cup-engineering/semiotic-exchange-chain-services-section": "workspace:*",
-    "@red-cup-engineering/uri-services-section": "workspace:*",
-    "@red-cup-engineering/witness-journal-document-service": "workspace:*",
     "ethers": "6.17.0",
     "viem": "2.55.4",
-    "@red-cup-engineering/signcell": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/solidity-services-section": "workspace:*"
+    "@red-cup-engineering/signcell": "0.2.0",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/solidity-services-section": "0.1.2",
+    "@red-cup-engineering/javascript-node-operation-service": "0.1.0"
   },
   "scripts": {
     "validate:glass-sponge-deployment-plan": "node scripts/validate-glass-sponge-deployment-plan.mjs",
@@ -117,9 +102,9 @@
     "@ethereum-attestation-service/eas-contracts": "1.9.0",
     "@foundry-rs/anvil": "1.7.1",
     "@foundry-rs/cast": "1.7.1",
-    "@red-cup-engineering/computer-deployment-engine": "workspace:*",
-    "@lenticule-science/witness-journal-rdf-projection-service": "workspace:*",
-    "solc": "0.8.28"
+    "solc": "0.8.28",
+    "@lenticule-science/witness-journal-rdf-projection-service": "0.6.1",
+    "@red-cup-engineering/computer-deployment-engine": "0.1.2"
   },
   "nodeRuntimeGeneration": {
     "module": "scripts/generate-articulating-artifacts.mjs",
@@ -130,5 +115,6 @@
       "dist/articulating/Mark.json",
       "dist/articulating/Utterance.json"
     ]
-  }
+  },
+  "private": false
 }

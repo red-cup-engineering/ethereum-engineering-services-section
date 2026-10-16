@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { AbiCoder, Interface, sha256 } from "ethers";
 import { executeEnterpriseUserOperation } from "./enterprise-user-operation.mjs";
-import { admit, getType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
-import { admitTypeSystemDocument } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/document";
+import { admit, getType } from "@red-cup-engineering/signcell/type-system";
+import { admitTypeSystemDocument } from "@red-cup-engineering/signcell/type-system/document";
 import { admitOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 
 const PROJECTION_ABI = new Interface([
   "function commit(bytes32 senAct, bytes32 predicate, bytes32 subject, bytes32 object, bytes32 evidenceRoot) returns (bytes32)",
