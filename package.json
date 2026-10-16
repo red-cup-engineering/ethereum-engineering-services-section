@@ -20,6 +20,10 @@
     "test/TypedCommitmentProjection.t.sol",
     "test/fixtures/guile-typed-commitment.mjs",
     "data/records/articulating-compilation.json",
+    "data/state/forge-out-state/ArticulationCell.sol/ArticulationCell.json",
+    "data/state/forge-out-state/Articulating.sol/Articulating.json",
+    "data/state/forge-out-state/ArticulatingMark.sol/Mark.json",
+    "data/state/forge-out-state/ArticulatingUtterance.sol/Utterance.json",
     "dist/articulating",
     "content/deployments",
     "content/deployment-plans"
