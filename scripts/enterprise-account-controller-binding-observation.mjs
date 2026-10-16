@@ -1,5 +1,5 @@
 import { Interface, TypedDataEncoder, keccak256, toUtf8Bytes } from "ethers";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 import { NI_URI_PATTERN } from "@red-cup-engineering/uri-services-section/ni-uri";
 
 const PROFILE = "org.emsenn.evm.enterprise-account-controller-binding.v1";
