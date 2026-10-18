@@ -2,6 +2,11 @@
   "name": "@red-cup-engineering/base-btc-deleverage-execution-service",
   "version": "0.1.4",
   "description": "Injected-boundary executor for an authorized Base BTC deleverage action card.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git",
+    "directory": "services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/base-btc-deleverage-execution-service"
+  },
   "type": "module",
   "exports": {
     ".": "./src/base-btc-deleverage-execution.mjs",

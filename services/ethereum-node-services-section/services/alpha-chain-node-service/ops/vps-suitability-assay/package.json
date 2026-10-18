@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Read-only, injected-facts suitability assay for a Besu QBFT alpha-chain host.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git",
+    "directory": "services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/ethereum-node-services-section/services/alpha-chain-node-service/ops/vps-suitability-assay"
+  },
   "exports": {
     ".": "./src/assay.mjs"
   },

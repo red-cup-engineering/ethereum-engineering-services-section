@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Deterministic CREATE2 ERC-4337 enterprise-account provisioning with remote Cloud KMS custody.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git",
+    "directory": "services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/account-abstraction-services-section/services/enterprise-account-provisioning-service"
+  },
   "bin": {
     "provision-enterprise-account": "./scripts/provision-enterprise-account.mjs",
     "bind-enterprise-account": "./scripts/bind-enterprise-account.mjs",

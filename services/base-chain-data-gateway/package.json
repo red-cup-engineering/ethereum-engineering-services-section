@@ -4,6 +4,11 @@
   "private": false,
   "type": "module",
   "description": "Three keyless-public-RPC Base network chain-data reads: address balance, gas oracle, and transaction-by-hash. Sold as offers in the catalog of market.561.group (@red-cup-engineering/market-561-group); this package owns only the pure reads, no transport of its own.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git",
+    "directory": "services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/base-chain-data-gateway"
+  },
   "main": "src/base-reads.mjs",
   "exports": {
     ".": "./src/base-reads.mjs",

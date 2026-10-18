@@ -1,5 +1,10 @@
 {
   "name": "@red-cup-engineering/account-abstraction-services-section",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git",
+    "directory": "services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/account-abstraction-services-section"
+  },
   "description": "ERC-4337 account-abstraction arena; bundling, sponsorship, and technical account-provisioning actors live below this locus."
 }

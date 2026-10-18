@@ -1,5 +1,10 @@
 {
   "name": "@red-cup-engineering/optimism-services-section",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git",
+    "directory": "services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/optimism-services-section"
+  },
   "description": "Optimism protocol arena; deployment carriers and independently operated OP Stack actors are seated below this locus."
 }
