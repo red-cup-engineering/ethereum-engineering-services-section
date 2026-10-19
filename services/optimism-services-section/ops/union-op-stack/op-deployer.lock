@@ -1,4 +1,0 @@
-# Exact official release selected by this carrier.
-version=v0.7.1
-release_tarball_sha256=295a8fdaf4dc462da0c2c9e9096ec5b87f5e829b506721e9a6548a2ea45905bf
-# Its embedded artifact set resolves to op-contracts/v7.0.0-rc.4.
