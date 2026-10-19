@@ -76,7 +76,17 @@
     "@red-cup-engineering/signcell": "0.2.0",
     "@red-cup-engineering/computer-content-address-engineering-services-section": "0.2.0",
     "@red-cup-engineering/solidity-services-section": "0.1.2",
-    "@red-cup-engineering/javascript-node-operation-service": "0.1.0"
+    "@red-cup-engineering/javascript-node-operation-service": "0.1.0",
+    "@red-cup-engineering/activitypub-services-section": "0.9.3",
+    "@red-cup-engineering/c2pa-services-section": "0.5.1",
+    "@red-cup-engineering/computer-code-engineering-services-section": "0.2.1",
+    "@red-cup-engineering/computer-data-engineering-services-section": "0.6.1",
+    "@red-cup-engineering/computer-file-engineering-services-section": "0.6.4",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "0.3.1",
+    "@red-cup-engineering/javascript-node-services-section": "0.4.1",
+    "@red-cup-engineering/semiotic-exchange-chain-services-section": "0.1.9",
+    "@red-cup-engineering/uri-services-section": "0.1.2",
+    "@red-cup-engineering/witness-journal-document-service": "0.1.2"
   },
   "scripts": {
     "validate:glass-sponge-deployment-plan": "node scripts/validate-glass-sponge-deployment-plan.mjs",
