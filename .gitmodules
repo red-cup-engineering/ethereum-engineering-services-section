@@ -1,0 +1,32 @@
+[submodule "smart-contract-services-section"]
+	path = services/smart-contract-services-section
+	url = https://github.com/red-cup-engineering/smart-contract-services-section.git
+	branch = main
+[submodule "sign-ethereum-digest-with-cloud-kms-services-section"]
+	path = services/sign-ethereum-digest-with-cloud-kms-services-section
+	url = https://github.com/red-cup-engineering/sign-ethereum-digest-with-cloud-kms-services-section.git
+	branch = main
+[submodule "optimism-services-section"]
+	path = services/optimism-services-section
+	url = https://github.com/red-cup-engineering/optimism-services-section.git
+	branch = main
+[submodule "ethereum-node-services-section"]
+	path = services/ethereum-node-services-section
+	url = https://github.com/red-cup-engineering/ethereum-node-services-section.git
+	branch = main
+[submodule "base-pre-sign-policy-service"]
+	path = services/base-pre-sign-policy-service
+	url = https://github.com/red-cup-engineering/base-pre-sign-policy-service.git
+	branch = main
+[submodule "base-chain-data-gateway"]
+	path = services/base-chain-data-gateway
+	url = https://github.com/red-cup-engineering/base-chain-data-gateway.git
+	branch = main
+[submodule "base-btc-deleverage-execution-service"]
+	path = services/base-btc-deleverage-execution-service
+	url = https://github.com/red-cup-engineering/base-btc-deleverage-execution-service.git
+	branch = main
+[submodule "account-abstraction-services-section"]
+	path = services/account-abstraction-services-section
+	url = https://github.com/red-cup-engineering/account-abstraction-services-section.git
+	branch = main
