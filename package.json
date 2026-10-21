@@ -115,7 +115,7 @@
     "ethereum",
     "evm"
   ],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "devDependencies": {
     "@ethereum-attestation-service/eas-contracts": "1.9.0",
     "@foundry-rs/anvil": "1.7.1",
@@ -134,5 +134,9 @@
       "dist/articulating/Utterance.json"
     ]
   },
-  "private": false
+  "private": false,
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/561-group/.github/blob/main/TIPS.md"
+  }
 }
